@@ -108,7 +108,7 @@ test: ## Запуск тестов
 coverage: ## Запуск тестов с проверкой покрытия
 	@echo -e "$(YELLOW)[INFO][COVERAGE][STARTED]$(RESET) Запуск тестов с проверкой покрытия"
 	@go env -w GOTOOLCHAIN=go1.25.1+auto
-	@go test -coverpkg='$(MODULE_NAME)/...' --race -count=1 -coverprofile='$(COVERAGE_FILE)' ./... && \
+	@go test -cover -coverprofile='$(COVERAGE_FILE)' ./... && \
 		go tool cover -func='$(COVERAGE_FILE)' | grep ^total | tr -s '\t' && \
 		echo -e "$(GREEN)[INFO][COVERAGE][SUCCESS]$(RESET) Тесты успешно прошли" || \
 		echo -e "$(RED)[ERROR][COVERAGE][FAIL]$(RESET) Ошибка при работе тестов с проверкой покрытия"
