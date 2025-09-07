@@ -13,7 +13,7 @@ RESET  = \033[0m
 TOOLS = mvdan.cc/gofumpt@latest \
         github.com/daixiang0/gci@latest \
         github.com/segmentio/golines@latest \
-        github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+        github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.4.0
 
 COVERAGE_FILE ?= coverage.out
 
