@@ -13,7 +13,11 @@ const (
 	dataFilePathFlagDesc         = "Path to file which will contains data about students"
 )
 
-var configPathFlag = flag.String(dataFilePathFlagName, dataFilePathFlagDefaultValue, dataFilePathFlagDesc)
+var configPathFlag = flag.String(
+	dataFilePathFlagName,
+	dataFilePathFlagDefaultValue,
+	dataFilePathFlagDesc,
+)
 
 type StudyFlags struct {
 	ConfigPath string `validate:"required,filepath"`
