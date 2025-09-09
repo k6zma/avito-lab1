@@ -7,10 +7,10 @@ import (
 )
 
 type Student struct {
-	Name    string `validate:"required,capitalized"`
-	Surname string `validate:"required,capitalized"`
-	Age     int    `validate:"gte=0,lte=150"`
-	Grades  []int  `validate:"omitempty,dive,gte=0,lte=100"`
+	Name    string `json:"name" validate:"required,capitalized"`
+	Surname string `json:"surname" validate:"required,capitalized"`
+	Age     int    `json:"age" validate:"gte=0,lte=150"`
+	Grades  []int  `json:"grades" validate:"omitempty,dive,gte=0,lte=100"`
 }
 
 // =============================================
