@@ -86,6 +86,19 @@ func (s *Student) AddGrades(grades ...int) error {
 	return nil
 }
 
+func (s *Student) Clone() *Student {
+	if s == nil {
+		return nil
+	}
+
+	cp := *s
+	if len(s.Grades) > 0 {
+		cp.Grades = append([]int(nil), s.Grades...)
+	}
+
+	return &cp
+}
+
 // ================================================
 // Realization of Builder pattern for Student model
 // ================================================
