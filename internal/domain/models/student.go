@@ -53,7 +53,7 @@ func (s *Student) SetSurname(surname string) error {
 }
 
 func (s *Student) SetAge(age int) error {
-	if err := validators.Validate.Var(age, "gte=0,lte=150"); err != nil {
+	if err := validators.Validate.Var(age, "required,gte=0,lte=150"); err != nil {
 		return fmt.Errorf("error while validating student age in student age setter: %w", err)
 	}
 
@@ -63,7 +63,7 @@ func (s *Student) SetAge(age int) error {
 }
 
 func (s *Student) SetGrades(grades []int) error {
-	if err := validators.Validate.Var(grades, "dive,gte=0,lte=100"); err != nil {
+	if err := validators.Validate.Var(grades, "required,dive,gte=0,lte=100"); err != nil {
 		return fmt.Errorf("error while validating grades in student grades setter: %w", err)
 	}
 
@@ -72,15 +72,15 @@ func (s *Student) SetGrades(grades []int) error {
 	return nil
 }
 
-func (s *Student) AppendGrade(grade int) error {
-	if err := validators.Validate.Var(grade, "gte=0,lte=100"); err != nil {
+func (s *Student) AppendGrade(grades ...int) error {
+	if err := validators.Validate.Var(grades, "required,dive,gte=0,lte=100"); err != nil {
 		return fmt.Errorf(
-			"error while validating appended grade in student append grade method: %w",
+			"error while validating appended grades in student append grades method: %w",
 			err,
 		)
 	}
 
-	s.Grades = append(s.Grades, grade)
+	s.Grades = append(s.Grades, grades...)
 
 	return nil
 }
