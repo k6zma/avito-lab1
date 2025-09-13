@@ -4,15 +4,16 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+
 	"github.com/k6zma/avito-lab1/pkg/validators"
 )
 
 type Student struct {
-	ID      uuid.UUID `json:"id" validate:"required"`
-	Name    string    `json:"name" validate:"required,capitalized"`
+	ID      uuid.UUID `json:"id"      validate:"required"`
+	Name    string    `json:"name"    validate:"required,capitalized"`
 	Surname string    `json:"surname" validate:"required,capitalized"`
-	Age     int       `json:"age" validate:"gte=0,lte=150"`
-	Grades  []int     `json:"grades" validate:"omitempty,dive,gte=0,lte=100"`
+	Age     int       `json:"age"     validate:"gte=0,lte=150"`
+	Grades  []int     `json:"grades"  validate:"omitempty,dive,gte=0,lte=100"`
 }
 
 // =============================================
