@@ -2,7 +2,7 @@ template: testify
 structname: "{{ .Mock }}{{ .InterfaceName }}"
 pkgname: mocks
 dir: "mocks"
-filename: "{{ .SrcPackageName }}_mocks_test.go"
+filename: "{{ .SrcPackageName }}_mocks.go"
 
 packages:
   github.com/k6zma/avito-lab1/internal/domain/repositories:
