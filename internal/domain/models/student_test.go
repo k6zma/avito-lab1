@@ -116,21 +116,21 @@ func TestStudent_Setters(t *testing.T) {
 		{
 			name: "append valid grade",
 			setFunc: func(s *models.Student) error {
-				return s.AppendGrade(75)
+				return s.AddGrades(75)
 			},
 			wantError: false,
 		},
 		{
 			name: "append invalid grade (too high)",
 			setFunc: func(s *models.Student) error {
-				return s.AppendGrade(150)
+				return s.AddGrades(150)
 			},
 			wantError: true,
 		},
 		{
 			name: "append invalid grade (too low)",
 			setFunc: func(s *models.Student) error {
-				return s.AppendGrade(-14)
+				return s.AddGrades(-14)
 			},
 			wantError: true,
 		},
