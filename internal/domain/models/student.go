@@ -72,7 +72,7 @@ func (s *Student) SetGrades(grades []int) error {
 	return nil
 }
 
-func (s *Student) AppendGrade(grades ...int) error {
+func (s *Student) AddGrades(grades ...int) error {
 	if err := validators.Validate.Var(grades, "required,dive,gte=0,lte=100"); err != nil {
 		return fmt.Errorf(
 			"error while validating appended grades in student append grades method: %w",
