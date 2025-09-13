@@ -28,7 +28,11 @@ type studentBuilderTestCase struct {
 }
 
 func TestStudent_Setters(t *testing.T) {
-	_ = validators.InitValidators()
+	err := validators.InitValidators()
+	if err != nil {
+		t.Fatalf("error while initializing validators: %v", err)
+	}
+
 	s := &models.Student{}
 
 	tests := []studentSetterTestCase{
@@ -138,6 +142,7 @@ func TestStudent_Setters(t *testing.T) {
 			func(t *testing.T) {
 				err := tt.setFunc(s)
 				gotError := err != nil
+
 				if gotError != tt.wantError {
 					t.Errorf(
 						"Test %d (%s): got error = %v, want error = %v (err: %v)",
@@ -150,7 +155,10 @@ func TestStudent_Setters(t *testing.T) {
 }
 
 func TestStudentBuilder_Build(t *testing.T) {
-	_ = validators.InitValidators()
+	err := validators.InitValidators()
+	if err != nil {
+		t.Fatalf("error while initializing validators: %v", err)
+	}
 
 	testCases := []studentBuilderTestCase{
 		{
@@ -223,13 +231,15 @@ func TestStudentBuilder_Build(t *testing.T) {
 		t.Run(
 			fmt.Sprintf("[%s]-builder-%s-№%d", studentTestPrefix, tc.name, i+1),
 			func(t *testing.T) {
-				builder := models.NewStudentBuilder().
+				student := models.NewStudentBuilder().
 					SetName(tc.nameVal).
 					SetSurname(tc.surname).
 					SetAge(tc.age).
 					SetGrades(tc.grades)
-				_, err := builder.Build()
+
+				_, err := student.Build()
 				gotError := err != nil
+
 				if gotError != tc.wantError {
 					t.Errorf(
 						"Builder Test %d (%s): got error = %v, want error = %v (err: %v)",

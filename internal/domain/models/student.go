@@ -3,19 +3,31 @@ package models
 import (
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/k6zma/avito-lab1/pkg/validators"
 )
 
 type Student struct {
-	Name    string `json:"name" validate:"required,capitalized"`
-	Surname string `json:"surname" validate:"required,capitalized"`
-	Age     int    `json:"age" validate:"gte=0,lte=150"`
-	Grades  []int  `json:"grades" validate:"omitempty,dive,gte=0,lte=100"`
+	ID      uuid.UUID `json:"id" validate:"required"`
+	Name    string    `json:"name" validate:"required,capitalized"`
+	Surname string    `json:"surname" validate:"required,capitalized"`
+	Age     int       `json:"age" validate:"gte=0,lte=150"`
+	Grades  []int     `json:"grades" validate:"omitempty,dive,gte=0,lte=100"`
 }
 
 // =============================================
 // Realization of custom setters with validation
 // =============================================
+
+func (s *Student) SetID(id uuid.UUID) error {
+	if err := validators.Validate.Var(id, "required"); err != nil {
+		return fmt.Errorf("error while validating student id (UUID) in student id setter: %w", err)
+	}
+
+	s.ID = id
+
+	return nil
+}
 
 func (s *Student) SetName(name string) error {
 	if err := validators.Validate.Var(name, "required,capitalized"); err != nil {
@@ -78,6 +90,7 @@ func (s *Student) AppendGrade(grade int) error {
 // ================================================
 
 type StudentBuilder interface {
+	SetID(id uuid.UUID) StudentBuilder
 	SetName(name string) StudentBuilder
 	SetSurname(surname string) StudentBuilder
 	SetAge(age int) StudentBuilder
@@ -86,6 +99,7 @@ type StudentBuilder interface {
 }
 
 type studentBuilder struct {
+	id      uuid.UUID
 	name    string
 	surname string
 	age     int
@@ -94,6 +108,12 @@ type studentBuilder struct {
 
 func NewStudentBuilder() StudentBuilder {
 	return &studentBuilder{}
+}
+
+func (s *studentBuilder) SetID(id uuid.UUID) StudentBuilder {
+	s.id = id
+
+	return s
 }
 
 func (s *studentBuilder) SetName(name string) StudentBuilder {
@@ -121,7 +141,13 @@ func (s *studentBuilder) SetGrades(grades []int) StudentBuilder {
 }
 
 func (s *studentBuilder) Build() (*Student, error) {
+	id := s.id
+	if id == uuid.Nil {
+		id = uuid.New()
+	}
+
 	student := &Student{
+		ID:      id,
 		Name:    s.name,
 		Surname: s.surname,
 		Age:     s.age,
