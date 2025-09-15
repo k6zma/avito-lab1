@@ -95,7 +95,7 @@ func (s *StudentStorage) GetByID(_ context.Context, id uuid.UUID) (*models.Stude
 }
 
 func (s *StudentStorage) GetByFullName(
-	ctx context.Context,
+	_ context.Context,
 	name string,
 	surname string,
 ) (*models.Student, error) {
