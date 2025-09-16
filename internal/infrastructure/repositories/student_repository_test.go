@@ -1,8 +1,11 @@
-package repositories
+package repositories_test
 
 import (
 	"context"
 	"fmt"
+	"github.com/k6zma/avito-lab1/internal/infrastructure/persisters"
+	"github.com/k6zma/avito-lab1/internal/infrastructure/repositories"
+	"path/filepath"
 	"testing"
 
 	"github.com/k6zma/avito-lab1/internal/domain/models"
@@ -22,11 +25,15 @@ type smokeCase struct {
 
 func TestRepository_Create_And_GetByID(t *testing.T) {
 	if err := validators.InitValidators(); err != nil {
-		t.Fatalf("[%s][Create_And_GetByID] init validators: %v", repoImplTestPrefix, err)
+		t.Fatalf("[%s][Create_And_GetByID] failed to init validators: %v", repoImplTestPrefix, err)
 	}
 
 	ctx := context.Background()
-	repo := NewStudentStorage()
+
+	repo, err := repositories.NewStudentStorageWithPersister(ctx, nil)
+	if err != nil {
+		t.Fatalf("[%s][Create_And_GetByID] error while creating repository with nil persister: %v", repoImplTestPrefix, err)
+	}
 
 	st, err := models.NewStudentBuilder().
 		SetName("Mikhail").
@@ -67,11 +74,15 @@ func TestRepository_Create_And_GetByID(t *testing.T) {
 
 func TestRepository_Create_DuplicateID(t *testing.T) {
 	if err := validators.InitValidators(); err != nil {
-		t.Fatalf("[%s][Create_DuplicateID] init validators: %v", repoImplTestPrefix, err)
+		t.Fatalf("[%s][Create_DuplicateID] failed to init validators: %v", repoImplTestPrefix, err)
 	}
 
 	ctx := context.Background()
-	repo := NewStudentStorage()
+
+	repo, err := repositories.NewStudentStorageWithPersister(ctx, nil)
+	if err != nil {
+		t.Fatalf("[%s][Create_DuplicateID] error while creating repository with nil persister: %v", repoImplTestPrefix, err)
+	}
 
 	st1, err := models.NewStudentBuilder().
 		SetName("Mikhail").
@@ -105,11 +116,15 @@ func TestRepository_Create_DuplicateID(t *testing.T) {
 
 func TestRepository_Create_InvalidStudent(t *testing.T) {
 	if err := validators.InitValidators(); err != nil {
-		t.Fatalf("[%s][Create_Invalid] init validators: %v", repoImplTestPrefix, err)
+		t.Fatalf("[%s][Create_Invalid] failed to init validators: %v", repoImplTestPrefix, err)
 	}
 
 	ctx := context.Background()
-	repo := NewStudentStorage()
+
+	repo, err := repositories.NewStudentStorageWithPersister(ctx, nil)
+	if err != nil {
+		t.Fatalf("[%s][Create_Invalid] error while creating repository with nil persister: %v", repoImplTestPrefix, err)
+	}
 
 	s, err := models.NewStudentBuilder().
 		SetName("Mikhail").
@@ -129,11 +144,15 @@ func TestRepository_Create_InvalidStudent(t *testing.T) {
 
 func TestRepository_GetByFullName(t *testing.T) {
 	if err := validators.InitValidators(); err != nil {
-		t.Fatalf("[%s][GetByFullName] init validators: %v", repoImplTestPrefix, err)
+		t.Fatalf("[%s][GetByFullName] failed to init validators: %v", repoImplTestPrefix, err)
 	}
 
 	ctx := context.Background()
-	repo := NewStudentStorage()
+
+	repo, err := repositories.NewStudentStorageWithPersister(ctx, nil)
+	if err != nil {
+		t.Fatalf("[%s][GetByFullName] error while creating repository with nil persister: %v", repoImplTestPrefix, err)
+	}
 
 	st, err := models.NewStudentBuilder().
 		SetName("Mikhail").
@@ -162,11 +181,15 @@ func TestRepository_GetByFullName(t *testing.T) {
 
 func TestRepository_Update_Success_And_Validation(t *testing.T) {
 	if err := validators.InitValidators(); err != nil {
-		t.Fatalf("[%s][Update] init validators: %v", repoImplTestPrefix, err)
+		t.Fatalf("[%s][Update] failed to init validators: %v", repoImplTestPrefix, err)
 	}
 
 	ctx := context.Background()
-	repo := NewStudentStorage()
+
+	repo, err := repositories.NewStudentStorageWithPersister(ctx, nil)
+	if err != nil {
+		t.Fatalf("[%s][Update] error while creating repository with nil persister: %v", repoImplTestPrefix, err)
+	}
 
 	orig, err := models.NewStudentBuilder().
 		SetName("Mikahil").
@@ -228,11 +251,15 @@ func TestRepository_Update_Success_And_Validation(t *testing.T) {
 
 func TestRepository_AddGrades(t *testing.T) {
 	if err := validators.InitValidators(); err != nil {
-		t.Fatalf("[%s][AddGrades] init validators: %v", repoImplTestPrefix, err)
+		t.Fatalf("[%s][AddGrades] failed to init validators: %v", repoImplTestPrefix, err)
 	}
 
 	ctx := context.Background()
-	repo := NewStudentStorage()
+
+	repo, err := repositories.NewStudentStorageWithPersister(ctx, nil)
+	if err != nil {
+		t.Fatalf("[%s][AddGrades] error while creating repository with nil persister: %v", repoImplTestPrefix, err)
+	}
 
 	st, err := models.NewStudentBuilder().
 		SetName("Mikhail").
@@ -270,11 +297,15 @@ func TestRepository_AddGrades(t *testing.T) {
 
 func TestRepository_DeleteByID(t *testing.T) {
 	if err := validators.InitValidators(); err != nil {
-		t.Fatalf("[%s][DeleteByID] init validators: %v", repoImplTestPrefix, err)
+		t.Fatalf("[%s][DeleteByID] failed to init validators: %v", repoImplTestPrefix, err)
 	}
 
 	ctx := context.Background()
-	repo := NewStudentStorage()
+
+	repo, err := repositories.NewStudentStorageWithPersister(ctx, nil)
+	if err != nil {
+		t.Fatalf("[%s][DeleteByID] error while creating repository with nil persister: %v", repoImplTestPrefix, err)
+	}
 
 	st, err := models.NewStudentBuilder().
 		SetName("Mikhail").
@@ -301,11 +332,15 @@ func TestRepository_DeleteByID(t *testing.T) {
 
 func TestRepository_List_ReturnsCopies(t *testing.T) {
 	if err := validators.InitValidators(); err != nil {
-		t.Fatalf("[%s][List_ReturnsCopies] init validators: %v", repoImplTestPrefix, err)
+		t.Fatalf("[%s][List_ReturnsCopies] failed to init validators: %v", repoImplTestPrefix, err)
 	}
 
 	ctx := context.Background()
-	repo := NewStudentStorage()
+
+	repo, err := repositories.NewStudentStorageWithPersister(ctx, nil)
+	if err != nil {
+		t.Fatalf("[%s][List_ReturnsCopies] error while creating repository with nil persister: %v", repoImplTestPrefix, err)
+	}
 
 	a, err := models.NewStudentBuilder().
 		SetName("Eleven").
@@ -359,11 +394,15 @@ func TestRepository_List_ReturnsCopies(t *testing.T) {
 
 func TestRepository_Smoke_TableDriven(t *testing.T) {
 	if err := validators.InitValidators(); err != nil {
-		t.Fatalf("[%s][Smoke] init validators: %v", repoImplTestPrefix, err)
+		t.Fatalf("[%s][Smoke] failed to init validators: %v", repoImplTestPrefix, err)
 	}
 
 	ctx := context.Background()
-	repo := NewStudentStorage()
+
+	repo, err := repositories.NewStudentStorageWithPersister(ctx, nil)
+	if err != nil {
+		t.Fatalf("[%s][Smoke] error while creating repository with nil persister: %v", repoImplTestPrefix, err)
+	}
 
 	tests := []smokeCase{
 		{
@@ -428,5 +467,88 @@ func TestRepository_Smoke_TableDriven(t *testing.T) {
 				}
 			},
 		)
+	}
+}
+
+func TestRepository_Persists_On_Mutations(t *testing.T) {
+	if err := validators.InitValidators(); err != nil {
+		t.Fatalf("[%s][Persists_On_Mutations] failed to init validators: %v", repoImplTestPrefix, err)
+	}
+
+	ctx := context.Background()
+	tmpDir := t.TempDir()
+	path := filepath.Join(tmpDir, "students.json")
+
+	persister := persisters.NewJSONStudentPersister(path)
+
+	repo, err := repositories.NewStudentStorageWithPersister(ctx, persister)
+	if err != nil {
+		t.Fatalf("[%s][Persists_On_Mutations] init repo with persister: %v", repoImplTestPrefix, err)
+	}
+
+	st, err := models.NewStudentBuilder().
+		SetName("Mikhail").
+		SetSurname("Gunin").
+		SetAge(19).
+		SetGrades([]int{50}).
+		Build()
+	if err != nil {
+		t.Fatalf("[%s][Persists_On_Mutations] failed to build student: %v", repoImplTestPrefix, err)
+	}
+
+	id, err := repo.Create(ctx, st)
+	if err != nil {
+		t.Fatalf("[%s][Persists_On_Mutations] unexpected error while creating student in storage: %v", repoImplTestPrefix, err)
+	}
+
+	loaded, err := persister.Load(ctx)
+	if err != nil {
+		t.Fatalf("[%s][Persists_On_Mutations] unexpected error while loading students from persister: %v", repoImplTestPrefix, err)
+	}
+
+	if len(loaded) != 1 || loaded[0].ID != id {
+		t.Fatalf("[%s][Persists_On_Mutations] snapshot mismatch: got=%v", repoImplTestPrefix, loaded)
+	}
+
+	upd := *st
+	upd.Age = 21
+
+	if err := repo.Update(ctx, &upd); err != nil {
+		t.Fatalf("[%s][Persists_On_Mutations] unexpected error while updating student in storage: %v", repoImplTestPrefix, err)
+	}
+
+	loaded, err = persister.Load(ctx)
+	if err != nil {
+		t.Fatalf("[%s][Persists_On_Mutations] unexpected error while loading students from persister: %v", repoImplTestPrefix, err)
+	}
+
+	if len(loaded) != 1 || loaded[0].Age != 21 {
+		t.Fatalf("[%s][Persists_On_Mutations] want Age=21, got=%v", repoImplTestPrefix, loaded)
+	}
+
+	if err := repo.AddGrades(ctx, id, 60); err != nil {
+		t.Fatalf("[%s][Persists_On_Mutations] unexpected error while adding grades to student in storage: %v", repoImplTestPrefix, err)
+	}
+
+	loaded, err = persister.Load(ctx)
+	if err != nil {
+		t.Fatalf("[%s][Persists_On_Mutations] unexpected error while loading students from persister: %v", repoImplTestPrefix, err)
+	}
+
+	if len(loaded) != 1 || len(loaded[0].Grades) != 2 {
+		t.Fatalf("[%s][Persists_On_Mutations] want 2 grades, got=%v", repoImplTestPrefix, loaded)
+	}
+
+	if err := repo.DeleteByID(ctx, id); err != nil {
+		t.Fatalf("[%s][Persists_On_Mutations] unexpected error while deleting students by id from storage: %v", repoImplTestPrefix, err)
+	}
+
+	loaded, err = persister.Load(ctx)
+	if err != nil {
+		t.Fatalf("[%s][Persists_On_Mutations] unexpected error while loading students from persister: %v", repoImplTestPrefix, err)
+	}
+
+	if len(loaded) != 0 {
+		t.Fatalf("[%s][Persists_On_Mutations] want 0 students, got=%d", repoImplTestPrefix, len(loaded))
 	}
 }
