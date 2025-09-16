@@ -31,7 +31,7 @@ func NewJSONStudentPersister(path string) *JSONStudentPersister {
 
 func (p *JSONStudentPersister) Save(_ context.Context, students []*models.Student) error {
 	dir := filepath.Dir(p.path)
-	if err := os.MkdirAll(dir, 0o755); err != nil {
+	if err := os.MkdirAll(dir, 0o750); err != nil {
 		return fmt.Errorf("failed to create directory with json file: %w", err)
 	}
 
