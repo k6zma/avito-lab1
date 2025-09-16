@@ -3,7 +3,6 @@ package persisters_test
 import (
 	"context"
 	"fmt"
-	"github.com/k6zma/avito-lab1/internal/infrastructure/persisters"
 	"os"
 	"path/filepath"
 	"testing"
@@ -11,6 +10,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/k6zma/avito-lab1/internal/domain/models"
+	"github.com/k6zma/avito-lab1/internal/infrastructure/persisters"
 	"github.com/k6zma/avito-lab1/pkg/validators"
 )
 
@@ -31,11 +31,19 @@ func TestPersister_Load_NoFile(t *testing.T) {
 
 	got, err := persister.Load(ctx)
 	if err != nil {
-		t.Fatalf("[%s][Load_NoFile] unexpected error while loading from non-existing file: %v", persisterTestPrefix, err)
+		t.Fatalf(
+			"[%s][Load_NoFile] unexpected error while loading from non-existing file: %v",
+			persisterTestPrefix,
+			err,
+		)
 	}
 
 	if got != nil {
-		t.Fatalf("[%s][Load_NoFile] want nil slice on missing file, got=%v", persisterTestPrefix, got)
+		t.Fatalf(
+			"[%s][Load_NoFile] want nil slice on missing file, got=%v",
+			persisterTestPrefix,
+			got,
+		)
 	}
 }
 
@@ -57,7 +65,11 @@ func TestPersister_SaveAndLoad_RoundTrip(t *testing.T) {
 		SetGrades([]int{90, 95}).
 		Build()
 	if err != nil {
-		t.Fatalf("[%s][SaveAndLoad] failed to build first student model: %v", persisterTestPrefix, err)
+		t.Fatalf(
+			"[%s][SaveAndLoad] failed to build first student model: %v",
+			persisterTestPrefix,
+			err,
+		)
 	}
 
 	second, err := models.NewStudentBuilder().
@@ -67,7 +79,11 @@ func TestPersister_SaveAndLoad_RoundTrip(t *testing.T) {
 		SetGrades([]int{80}).
 		Build()
 	if err != nil {
-		t.Fatalf("[%s][SaveAndLoad] failed to build second student model: %v", persisterTestPrefix, err)
+		t.Fatalf(
+			"[%s][SaveAndLoad] failed to build second student model: %v",
+			persisterTestPrefix,
+			err,
+		)
 	}
 
 	if err := persister.Save(ctx, []*models.Student{first, second}); err != nil {
@@ -89,7 +105,12 @@ func TestPersister_SaveAndLoad_RoundTrip(t *testing.T) {
 	}
 
 	if len(loaded) != 2 {
-		t.Fatalf("[%s][SaveAndLoad] length mismatch: got=%d want=%d", persisterTestPrefix, len(loaded), 2)
+		t.Fatalf(
+			"[%s][SaveAndLoad] length mismatch: got=%d want=%d",
+			persisterTestPrefix,
+			len(loaded),
+			2,
+		)
 	}
 
 	want := map[uuid.UUID]*models.Student{
@@ -100,12 +121,26 @@ func TestPersister_SaveAndLoad_RoundTrip(t *testing.T) {
 	for i, st := range loaded {
 		ws, ok := want[st.ID]
 		if !ok {
-			t.Fatalf("[%s][SaveAndLoad] unexpected student id at idx=%d: %s", persisterTestPrefix, i, st.ID)
+			t.Fatalf(
+				"[%s][SaveAndLoad] unexpected student id at idx=%d: %s",
+				persisterTestPrefix,
+				i,
+				st.ID,
+			)
 		}
 
 		if st.Name != ws.Name || st.Surname != ws.Surname || st.Age != ws.Age {
-			t.Fatalf("[%s][SaveAndLoad] mismatch for id=%s: got{Name:%q,Surname:%q,Age:%d} want{Name:%q,Surname:%q,Age:%d}",
-				persisterTestPrefix, st.ID, st.Name, st.Surname, st.Age, ws.Name, ws.Surname, ws.Age)
+			t.Fatalf(
+				"[%s][SaveAndLoad] mismatch for id=%s: got{Name:%q,Surname:%q,Age:%d} want{Name:%q,Surname:%q,Age:%d}",
+				persisterTestPrefix,
+				st.ID,
+				st.Name,
+				st.Surname,
+				st.Age,
+				ws.Name,
+				ws.Surname,
+				ws.Age,
+			)
 		}
 
 		if fmt.Sprint(st.Grades) != fmt.Sprint(ws.Grades) {
@@ -117,7 +152,11 @@ func TestPersister_SaveAndLoad_RoundTrip(t *testing.T) {
 
 func TestPersister_Save_CreatesDirectories(t *testing.T) {
 	if err := validators.InitValidators(); err != nil {
-		t.Fatalf("[%s][Save_CreatesDirectories] failed to init validators: %v", persisterTestPrefix, err)
+		t.Fatalf(
+			"[%s][Save_CreatesDirectories] failed to init validators: %v",
+			persisterTestPrefix,
+			err,
+		)
 	}
 
 	ctx := context.Background()
@@ -132,15 +171,28 @@ func TestPersister_Save_CreatesDirectories(t *testing.T) {
 		SetAge(19).
 		Build()
 	if err != nil {
-		t.Fatalf("[%s][Save_CreatesDirectories] failed to build student model: %v", persisterTestPrefix, err)
+		t.Fatalf(
+			"[%s][Save_CreatesDirectories] failed to build student model: %v",
+			persisterTestPrefix,
+			err,
+		)
 	}
 
 	if err := persister.Save(ctx, []*models.Student{student}); err != nil {
-		t.Fatalf("[%s][Save_CreatesDirectories] failed to save student data: %v", persisterTestPrefix, err)
+		t.Fatalf(
+			"[%s][Save_CreatesDirectories] failed to save student data: %v",
+			persisterTestPrefix,
+			err,
+		)
 	}
 
 	if _, err := os.Stat(path); err != nil {
-		t.Fatalf("[%s][Save_CreatesDirectories] expected snapshot file at %s, stat error: %v", persisterTestPrefix, path, err)
+		t.Fatalf(
+			"[%s][Save_CreatesDirectories] expected snapshot file at %s, stat error: %v",
+			persisterTestPrefix,
+			path,
+			err,
+		)
 	}
 }
 
@@ -165,7 +217,11 @@ func TestPersister_Load_EmptyFile(t *testing.T) {
 	}
 
 	if got != nil {
-		t.Fatalf("[%s][Load_EmptyFile] want nil slice for empty file, got=%v", persisterTestPrefix, got)
+		t.Fatalf(
+			"[%s][Load_EmptyFile] want nil slice for empty file, got=%v",
+			persisterTestPrefix,
+			got,
+		)
 	}
 }
 
@@ -191,7 +247,11 @@ func TestPersister_Load_InvalidJSON(t *testing.T) {
 
 func TestPersister_Save_OverwriteSnapshot(t *testing.T) {
 	if err := validators.InitValidators(); err != nil {
-		t.Fatalf("[%s][Save_OverwriteSnapshot] failed to init validators: %v", persisterTestPrefix, err)
+		t.Fatalf(
+			"[%s][Save_OverwriteSnapshot] failed to init validators: %v",
+			persisterTestPrefix,
+			err,
+		)
 	}
 
 	ctx := context.Background()
@@ -206,11 +266,19 @@ func TestPersister_Save_OverwriteSnapshot(t *testing.T) {
 		SetAge(19).
 		Build()
 	if err != nil {
-		t.Fatalf("[%s][Save_OverwriteSnapshot] failed to build first student model: %v", persisterTestPrefix, err)
+		t.Fatalf(
+			"[%s][Save_OverwriteSnapshot] failed to build first student model: %v",
+			persisterTestPrefix,
+			err,
+		)
 	}
 
 	if err := persister.Save(ctx, []*models.Student{first}); err != nil {
-		t.Fatalf("[%s][Save_OverwriteSnapshot] failed to save first model: %v", persisterTestPrefix, err)
+		t.Fatalf(
+			"[%s][Save_OverwriteSnapshot] failed to save first model: %v",
+			persisterTestPrefix,
+			err,
+		)
 	}
 
 	second, err := models.NewStudentBuilder().
@@ -219,19 +287,35 @@ func TestPersister_Save_OverwriteSnapshot(t *testing.T) {
 		SetAge(19).
 		Build()
 	if err != nil {
-		t.Fatalf("[%s][Save_OverwriteSnapshot] failed to build second student model: %v", persisterTestPrefix, err)
+		t.Fatalf(
+			"[%s][Save_OverwriteSnapshot] failed to build second student model: %v",
+			persisterTestPrefix,
+			err,
+		)
 	}
 
 	if err := persister.Save(ctx, []*models.Student{first, second}); err != nil {
-		t.Fatalf("[%s][Save_OverwriteSnapshot] failed to save second student: %v", persisterTestPrefix, err)
+		t.Fatalf(
+			"[%s][Save_OverwriteSnapshot] failed to save second student: %v",
+			persisterTestPrefix,
+			err,
+		)
 	}
 
 	loaded, err := persister.Load(ctx)
 	if err != nil {
-		t.Fatalf("[%s][Save_OverwriteSnapshot] failed to load second student: %v", persisterTestPrefix, err)
+		t.Fatalf(
+			"[%s][Save_OverwriteSnapshot] failed to load second student: %v",
+			persisterTestPrefix,
+			err,
+		)
 	}
 
 	if len(loaded) != 2 {
-		t.Fatalf("[%s][Save_OverwriteSnapshot] want 2 students after overwrite, got=%d", persisterTestPrefix, len(loaded))
+		t.Fatalf(
+			"[%s][Save_OverwriteSnapshot] want 2 students after overwrite, got=%d",
+			persisterTestPrefix,
+			len(loaded),
+		)
 	}
 }

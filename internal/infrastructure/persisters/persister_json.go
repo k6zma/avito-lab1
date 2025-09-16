@@ -4,14 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	persisters2 "github.com/k6zma/avito-lab1/internal/domain/persisters"
 	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
 
 	"github.com/goccy/go-json"
+
 	"github.com/k6zma/avito-lab1/internal/domain/models"
+	persisters2 "github.com/k6zma/avito-lab1/internal/domain/persisters"
 )
 
 type jsonSnapshot struct {

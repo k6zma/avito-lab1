@@ -3,12 +3,12 @@ package repositories
 import (
 	"context"
 	"fmt"
-	"github.com/k6zma/avito-lab1/internal/domain/persisters"
 	"sync"
 
 	"github.com/google/uuid"
 
 	"github.com/k6zma/avito-lab1/internal/domain/models"
+	"github.com/k6zma/avito-lab1/internal/domain/persisters"
 	"github.com/k6zma/avito-lab1/internal/domain/repositories"
 	"github.com/k6zma/avito-lab1/pkg/validators"
 )
@@ -19,7 +19,10 @@ type StudentStorage struct {
 	mu        sync.RWMutex
 }
 
-func NewStudentStorageWithPersister(ctx context.Context, p persisters.StudentPersister) (*StudentStorage, error) {
+func NewStudentStorageWithPersister(
+	ctx context.Context,
+	p persisters.StudentPersister,
+) (*StudentStorage, error) {
 	s := &StudentStorage{
 		students:  make(map[uuid.UUID]*models.Student),
 		persister: p,
