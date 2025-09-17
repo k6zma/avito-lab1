@@ -12,7 +12,6 @@ import (
 	"github.com/goccy/go-json"
 
 	"github.com/k6zma/avito-lab1/internal/domain/models"
-	persisters2 "github.com/k6zma/avito-lab1/internal/domain/persisters"
 )
 
 type jsonSnapshot struct {
@@ -82,7 +81,7 @@ func (p *JSONStudentPersister) Save(_ context.Context, students []*models.Studen
 			)
 		}
 
-		return persisters2.ErrMismatchPayloadAndWriteLen
+		return ErrMismatchPayloadAndWriteLen
 	}
 
 	if err := tmp.Sync(); err != nil {

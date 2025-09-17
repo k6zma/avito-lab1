@@ -3,12 +3,12 @@ package repositories
 import (
 	"context"
 	"fmt"
+	"github.com/k6zma/avito-lab1/internal/infrastructure/persisters"
 	"sync"
 
 	"github.com/google/uuid"
 
 	"github.com/k6zma/avito-lab1/internal/domain/models"
-	"github.com/k6zma/avito-lab1/internal/domain/persisters"
 	"github.com/k6zma/avito-lab1/internal/domain/repositories"
 	"github.com/k6zma/avito-lab1/pkg/validators"
 )
