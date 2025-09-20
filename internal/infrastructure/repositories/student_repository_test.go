@@ -3,6 +3,7 @@ package repositories_test
 import (
 	"context"
 	"fmt"
+	"github.com/k6zma/avito-lab1/internal/infrastructure/ciphers"
 	"path/filepath"
 	"testing"
 
@@ -14,6 +15,8 @@ import (
 
 const (
 	repoImplTestPrefix = "StudentRepositoryImpl"
+
+	testKey = "12345678901234567890123456789012"
 )
 
 type smokeCase struct {
@@ -688,11 +691,16 @@ func TestRepository_Persists_On_Mutations(t *testing.T) {
 		)
 	}
 
+	cipher, err := ciphers.NewAESGCM(testKey)
+	if err != nil {
+		t.Fatalf("[%s][Persists_On_Mutations] init cipher: %v", repoImplTestPrefix, err)
+	}
+
 	ctx := context.Background()
 	tmpDir := t.TempDir()
 	path := filepath.Join(tmpDir, "students.json")
 
-	persister := persisters.NewJSONStudentPersister(path)
+	persister := persisters.NewJSONStudentPersister(path, cipher)
 
 	repo, err := repositories.NewStudentStorageWithPersister(ctx, persister)
 	if err != nil {

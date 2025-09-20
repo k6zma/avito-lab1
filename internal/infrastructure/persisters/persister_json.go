@@ -12,6 +12,7 @@ import (
 	"github.com/goccy/go-json"
 
 	"github.com/k6zma/avito-lab1/internal/domain/models"
+	"github.com/k6zma/avito-lab1/internal/infrastructure/ciphers"
 )
 
 type jsonSnapshot struct {
@@ -19,16 +20,22 @@ type jsonSnapshot struct {
 }
 
 type JSONStudentPersister struct {
-	path string
+	path   string
+	cipher ciphers.Cipher
 }
 
-func NewJSONStudentPersister(path string) *JSONStudentPersister {
+func NewJSONStudentPersister(path string, c ciphers.Cipher) *JSONStudentPersister {
 	return &JSONStudentPersister{
-		path: path,
+		path:   path,
+		cipher: c,
 	}
 }
 
-func (p *JSONStudentPersister) Save(_ context.Context, students []*models.Student) error {
+func (p *JSONStudentPersister) Save(ctx context.Context, students []*models.Student) error {
+	if p.cipher == nil {
+		return ErrInvalidCipher
+	}
+
 	dir := filepath.Dir(p.path)
 	if err := os.MkdirAll(dir, 0o750); err != nil {
 		return fmt.Errorf("failed to create directory with json file: %w", err)
@@ -62,25 +69,26 @@ func (p *JSONStudentPersister) Save(_ context.Context, students []*models.Studen
 		return fmt.Errorf("failed to marshal json with snapshot data: %w", err)
 	}
 
-	if n, err := tmp.Write(payload); err != nil {
+	ciphertext, err := p.cipher.Encrypt(ctx, payload)
+	if err != nil {
+		return fmt.Errorf("failed to encrypt snapshot: %w", err)
+	}
+
+	if n, err := tmp.Write(ciphertext); err != nil {
 		if closeErr := tmp.Close(); closeErr != nil {
-			slog.Error(
-				"failed to close temp file with snapshot after write error",
+			slog.Error("failed to close temp file after write error",
 				slog.String("path", tmp.Name()),
 				slog.Any("error", closeErr),
 			)
 		}
-
-		return fmt.Errorf("failed to write marshalled snapshot data: %w", err)
-	} else if n != len(payload) {
+		return fmt.Errorf("failed to write encrypted snapshot data: %w", err)
+	} else if n != len(ciphertext) {
 		if closeErr := tmp.Close(); closeErr != nil {
-			slog.Error(
-				"failed to close temp file with snapshot after short write",
+			slog.Error("failed to close temp file after short write",
 				slog.String("path", tmp.Name()),
-				slog.Any("err", closeErr),
+				slog.Any("error", closeErr),
 			)
 		}
-
 		return ErrMismatchPayloadAndWriteLen
 	}
 
@@ -107,7 +115,11 @@ func (p *JSONStudentPersister) Save(_ context.Context, students []*models.Studen
 	return nil
 }
 
-func (p *JSONStudentPersister) Load(_ context.Context) ([]*models.Student, error) {
+func (p *JSONStudentPersister) Load(ctx context.Context) ([]*models.Student, error) {
+	if p.cipher == nil {
+		return nil, ErrInvalidCipher
+	}
+
 	file, err := os.Open(p.path)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
@@ -136,8 +148,13 @@ func (p *JSONStudentPersister) Load(_ context.Context) ([]*models.Student, error
 		return nil, nil
 	}
 
+	plaintext, err := p.cipher.Decrypt(ctx, data)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt snapshot: %w", err)
+	}
+
 	var snap jsonSnapshot
-	if err := json.Unmarshal(data, &snap); err != nil {
+	if err := json.Unmarshal(plaintext, &snap); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal json snapshot: %w", err)
 	}
 

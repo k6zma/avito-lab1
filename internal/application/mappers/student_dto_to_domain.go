@@ -19,7 +19,7 @@ func MapStudentCreateDTOToDomain(d dtos.StudentCreateDTO) (*models.Student, erro
 		SetName(d.Name).
 		SetSurname(d.Surname).
 		SetAge(d.Age).
-		SetGrades(d.Grades).
+		SetGrades(append([]int(nil), d.Grades...)).
 		Build()
 	if err != nil {
 		return nil, fmt.Errorf("failed to build domain student from create dto: %w", err)
@@ -42,7 +42,7 @@ func MapStudentUpdateDTOToDomain(d dtos.StudentUpdateDTO) (*models.Student, erro
 		SetName(d.Name).
 		SetSurname(d.Surname).
 		SetAge(d.Age).
-		SetGrades(d.Grades).
+		SetGrades(append([]int(nil), d.Grades...)).
 		Build()
 	if err != nil {
 		return nil, fmt.Errorf("failed to build domain student from update dto: %w", err)

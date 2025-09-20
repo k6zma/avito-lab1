@@ -2,7 +2,9 @@ package persisters_test
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"github.com/k6zma/avito-lab1/internal/infrastructure/ciphers"
 	"os"
 	"path/filepath"
 	"testing"
@@ -16,6 +18,8 @@ import (
 
 const (
 	persisterTestPrefix = "StudentPersister"
+
+	testKey = "12345678901234567890123456789012"
 )
 
 func TestPersister_Load_NoFile(t *testing.T) {
@@ -23,11 +27,16 @@ func TestPersister_Load_NoFile(t *testing.T) {
 		t.Fatalf("[%s][Load_NoFile] failed to init validators: %v", persisterTestPrefix, err)
 	}
 
+	cipher, err := ciphers.NewAESGCM(testKey)
+	if err != nil {
+		t.Fatalf("[%s] failed to init cipher: %v", persisterTestPrefix, err)
+	}
+
 	ctx := context.Background()
 	tmpDir := t.TempDir()
 	path := filepath.Join(tmpDir, "students.json")
 
-	persister := persisters.NewJSONStudentPersister(path)
+	persister := persisters.NewJSONStudentPersister(path, cipher)
 
 	got, err := persister.Load(ctx)
 	if err != nil {
@@ -52,11 +61,16 @@ func TestPersister_SaveAndLoad_RoundTrip(t *testing.T) {
 		t.Fatalf("[%s][SaveAndLoad] failed to init validators: %v", persisterTestPrefix, err)
 	}
 
+	cipher, err := ciphers.NewAESGCM(testKey)
+	if err != nil {
+		t.Fatalf("[%s] failed to init cipher: %v", persisterTestPrefix, err)
+	}
+
 	ctx := context.Background()
 	tmpDir := t.TempDir()
 	path := filepath.Join(tmpDir, "students.json")
 
-	persister := persisters.NewJSONStudentPersister(path)
+	persister := persisters.NewJSONStudentPersister(path, cipher)
 
 	first, err := models.NewStudentBuilder().
 		SetName("Mikhail").
@@ -159,11 +173,16 @@ func TestPersister_Save_CreatesDirectories(t *testing.T) {
 		)
 	}
 
+	cipher, err := ciphers.NewAESGCM(testKey)
+	if err != nil {
+		t.Fatalf("[%s] failed to init cipher: %v", persisterTestPrefix, err)
+	}
+
 	ctx := context.Background()
 	tmpDir := t.TempDir()
 	path := filepath.Join(tmpDir, "nested", "deep", "students.json")
 
-	persister := persisters.NewJSONStudentPersister(path)
+	persister := persisters.NewJSONStudentPersister(path, cipher)
 
 	student, err := models.NewStudentBuilder().
 		SetName("Mikhail").
@@ -201,6 +220,11 @@ func TestPersister_Load_EmptyFile(t *testing.T) {
 		t.Fatalf("[%s][Load_EmptyFile] failed to init validators: %v", persisterTestPrefix, err)
 	}
 
+	cipher, err := ciphers.NewAESGCM(testKey)
+	if err != nil {
+		t.Fatalf("[%s] failed to init cipher: %v", persisterTestPrefix, err)
+	}
+
 	ctx := context.Background()
 	tmpDir := t.TempDir()
 	path := filepath.Join(tmpDir, "students.json")
@@ -209,7 +233,7 @@ func TestPersister_Load_EmptyFile(t *testing.T) {
 		t.Fatalf("[%s][Load_EmptyFile] write empty file: %v", persisterTestPrefix, err)
 	}
 
-	persister := persisters.NewJSONStudentPersister(path)
+	persister := persisters.NewJSONStudentPersister(path, cipher)
 
 	got, err := persister.Load(ctx)
 	if err != nil {
@@ -230,6 +254,11 @@ func TestPersister_Load_InvalidJSON(t *testing.T) {
 		t.Fatalf("[%s][Load_InvalidJSON] failed to init validators: %v", persisterTestPrefix, err)
 	}
 
+	cipher, err := ciphers.NewAESGCM(testKey)
+	if err != nil {
+		t.Fatalf("[%s] failed to init cipher: %v", persisterTestPrefix, err)
+	}
+
 	ctx := context.Background()
 	tmpDir := t.TempDir()
 	path := filepath.Join(tmpDir, "students.json")
@@ -238,7 +267,7 @@ func TestPersister_Load_InvalidJSON(t *testing.T) {
 		t.Fatalf("[%s][Load_InvalidJSON] write invalid json: %v", persisterTestPrefix, err)
 	}
 
-	persister := persisters.NewJSONStudentPersister(path)
+	persister := persisters.NewJSONStudentPersister(path, cipher)
 
 	if _, err := persister.Load(ctx); err == nil {
 		t.Fatalf("[%s][Load_InvalidJSON] expected unmarshal error, got nil", persisterTestPrefix)
@@ -254,11 +283,16 @@ func TestPersister_Save_OverwriteSnapshot(t *testing.T) {
 		)
 	}
 
+	cipher, err := ciphers.NewAESGCM(testKey)
+	if err != nil {
+		t.Fatalf("[%s] failed to init cipher: %v", persisterTestPrefix, err)
+	}
+
 	ctx := context.Background()
 	tmpDir := t.TempDir()
 	path := filepath.Join(tmpDir, "students.json")
 
-	persister := persisters.NewJSONStudentPersister(path)
+	persister := persisters.NewJSONStudentPersister(path, cipher)
 
 	first, err := models.NewStudentBuilder().
 		SetName("Mikhail").
@@ -317,5 +351,26 @@ func TestPersister_Save_OverwriteSnapshot(t *testing.T) {
 			persisterTestPrefix,
 			len(loaded),
 		)
+	}
+}
+
+func TestPersister_Save_NilCipher(t *testing.T) {
+	ctx := context.Background()
+	tmp := t.TempDir()
+	p := persisters.NewJSONStudentPersister(filepath.Join(tmp, "s.json"), nil)
+
+	if err := p.Save(ctx, nil); !errors.Is(err, persisters.ErrInvalidCipher) {
+		t.Fatalf("want ErrInvalidCipher, got %v", err)
+	}
+}
+
+func TestPersister_Load_NilCipher(t *testing.T) {
+	ctx := context.Background()
+	tmp := t.TempDir()
+	_ = os.WriteFile(filepath.Join(tmp, "s.json"), []byte("non-empty"), 0o644)
+
+	p := persisters.NewJSONStudentPersister(filepath.Join(tmp, "s.json"), nil)
+	if _, err := p.Load(ctx); !errors.Is(err, persisters.ErrInvalidCipher) {
+		t.Fatalf("want ErrInvalidCipher, got %v", err)
 	}
 }
