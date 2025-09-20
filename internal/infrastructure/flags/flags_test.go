@@ -67,37 +67,40 @@ func TestGetFlags_TableDriven(t *testing.T) {
 	}
 
 	for i, tc := range tests {
-		t.Run(fmt.Sprintf("[%s]-GetFlags-%s-№%d", flagsTestPrefix, tc.name, i+1), func(t *testing.T) {
-			*configPathFlag = tc.dataPath
-			*cipherKeyFlag = tc.key
+		t.Run(
+			fmt.Sprintf("[%s]-GetFlags-%s-№%d", flagsTestPrefix, tc.name, i+1),
+			func(t *testing.T) {
+				*configPathFlag = tc.dataPath
+				*cipherKeyFlag = tc.key
 
-			got, err := GetFlags()
+				got, err := GetFlags()
 
-			gotErr := err != nil
+				gotErr := err != nil
 
-			if gotErr != tc.wantErr {
-				t.Fatalf(
-					"[%s][GetFlags] got error=%v, want error=%v (err=%v)",
-					flagsTestPrefix, gotErr, tc.wantErr, err,
-				)
-			}
-
-			if !tc.wantErr {
-				if got.ConfigPath != tc.dataPath {
+				if gotErr != tc.wantErr {
 					t.Fatalf(
-						"[%s][GetFlags] Data Path mismatch: got=%q want=%q",
-						flagsTestPrefix, got.ConfigPath, tc.dataPath,
+						"[%s][GetFlags] got error=%v, want error=%v (err=%v)",
+						flagsTestPrefix, gotErr, tc.wantErr, err,
 					)
 				}
 
-				if got.CipherKey != tc.key {
-					t.Fatalf(
-						"[%s][GetFlags] Cipher Key mismatch: got=%q want=%q",
-						flagsTestPrefix, got.CipherKey, tc.key,
-					)
+				if !tc.wantErr {
+					if got.ConfigPath != tc.dataPath {
+						t.Fatalf(
+							"[%s][GetFlags] Data Path mismatch: got=%q want=%q",
+							flagsTestPrefix, got.ConfigPath, tc.dataPath,
+						)
+					}
+
+					if got.CipherKey != tc.key {
+						t.Fatalf(
+							"[%s][GetFlags] Cipher Key mismatch: got=%q want=%q",
+							flagsTestPrefix, got.CipherKey, tc.key,
+						)
+					}
 				}
-			}
-		})
+			},
+		)
 	}
 }
 
@@ -113,7 +116,11 @@ func TestGetFlags_IdempotentValues(t *testing.T) {
 
 	first, err := GetFlags()
 	if err != nil {
-		t.Fatalf("[%s][Idempotent-first] unexpected error while getting flags: %v", flagsTestPrefix, err)
+		t.Fatalf(
+			"[%s][Idempotent-first] unexpected error while getting flags: %v",
+			flagsTestPrefix,
+			err,
+		)
 	}
 
 	*configPathFlag = studentsDataPath
@@ -121,7 +128,11 @@ func TestGetFlags_IdempotentValues(t *testing.T) {
 
 	second, err := GetFlags()
 	if err != nil {
-		t.Fatalf("[%s][Idempotent-second] unexpected error while getting flags: %v", flagsTestPrefix, err)
+		t.Fatalf(
+			"[%s][Idempotent-second] unexpected error while getting flags: %v",
+			flagsTestPrefix,
+			err,
+		)
 	}
 
 	if first.ConfigPath != second.ConfigPath || first.CipherKey != second.CipherKey {

@@ -43,7 +43,7 @@ func (a *AESGCMCipher) Encrypt(_ context.Context, plaintext []byte) ([]byte, err
 	nonce := make([]byte, nonceSize)
 
 	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrEncryptFailed, err)
+		return nil, fmt.Errorf("failed while generating nonce: %w", err)
 	}
 
 	ct := a.aead.Seal(nil, nonce, plaintext, nil)

@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/k6zma/avito-lab1/internal/infrastructure/ciphers"
 	"os"
 	"path/filepath"
 	"testing"
@@ -12,6 +11,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/k6zma/avito-lab1/internal/domain/models"
+	"github.com/k6zma/avito-lab1/internal/infrastructure/ciphers"
 	"github.com/k6zma/avito-lab1/internal/infrastructure/persisters"
 	"github.com/k6zma/avito-lab1/pkg/validators"
 )

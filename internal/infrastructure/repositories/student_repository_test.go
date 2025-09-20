@@ -3,11 +3,11 @@ package repositories_test
 import (
 	"context"
 	"fmt"
-	"github.com/k6zma/avito-lab1/internal/infrastructure/ciphers"
 	"path/filepath"
 	"testing"
 
 	"github.com/k6zma/avito-lab1/internal/domain/models"
+	"github.com/k6zma/avito-lab1/internal/infrastructure/ciphers"
 	"github.com/k6zma/avito-lab1/internal/infrastructure/persisters"
 	"github.com/k6zma/avito-lab1/internal/infrastructure/repositories"
 	"github.com/k6zma/avito-lab1/pkg/validators"
