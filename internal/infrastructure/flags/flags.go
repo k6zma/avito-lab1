@@ -11,6 +11,10 @@ const (
 	dataFilePathFlagName         = "data_path"
 	dataFilePathFlagDefaultValue = "students_data.json"
 	dataFilePathFlagDesc         = "Path to file which will contains data about students"
+
+	cipherKeyFlagName     = "cipher_key"
+	cipherKetDefaultValue = ""
+	cipherKeyFlagDesc     = "Key for encryption/decryption of students data using AES-GCM - it's required to be 32 characters long"
 )
 
 var configPathFlag = flag.String(
@@ -19,8 +23,15 @@ var configPathFlag = flag.String(
 	dataFilePathFlagDesc,
 )
 
+var cipherKeyFlag = flag.String(
+	cipherKeyFlagName,
+	cipherKetDefaultValue,
+	cipherKeyFlagDesc,
+)
+
 type StudyFlags struct {
 	ConfigPath string `validate:"required,filepath"`
+	CipherKey  string `validate:"required,len=32"`
 }
 
 func GetFlags() (*StudyFlags, error) {
@@ -28,6 +39,7 @@ func GetFlags() (*StudyFlags, error) {
 
 	result := &StudyFlags{
 		ConfigPath: *configPathFlag,
+		CipherKey:  *cipherKeyFlag,
 	}
 
 	if err := validators.Validate.Struct(result); err != nil {
