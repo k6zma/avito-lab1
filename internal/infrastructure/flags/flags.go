@@ -48,3 +48,10 @@ func GetFlags() (*StudyFlags, error) {
 
 	return result, nil
 }
+
+func ResetForTests(fs *flag.FlagSet) {
+	flag.CommandLine = fs
+	
+	configPathFlag = flag.String(dataFilePathFlagName, dataFilePathFlagDefaultValue, dataFilePathFlagDesc)
+	cipherKeyFlag = flag.String(cipherKeyFlagName, cipherKetDefaultValue, cipherKeyFlagDesc)
+}

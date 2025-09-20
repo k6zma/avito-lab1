@@ -1,7 +1,10 @@
-package flags
+package flags_test
 
 import (
+	"flag"
 	"fmt"
+	"github.com/k6zma/avito-lab1/internal/infrastructure/flags"
+	"os"
 	"testing"
 
 	"github.com/k6zma/avito-lab1/pkg/validators"
@@ -66,15 +69,35 @@ func TestGetFlags_TableDriven(t *testing.T) {
 		},
 	}
 
+	origArgs := os.Args
+
+	defer func() {
+		os.Args = origArgs
+	}()
+
 	for i, tc := range tests {
 		t.Run(
 			fmt.Sprintf("[%s]-GetFlags-%s-№%d", flagsTestPrefix, tc.name, i+1),
 			func(t *testing.T) {
-				*configPathFlag = tc.dataPath
-				*cipherKeyFlag = tc.key
+				flags.ResetForTests(flag.NewFlagSet("studify", flag.ContinueOnError))
 
-				got, err := GetFlags()
+				args := []string{"studify"}
 
+				if tc.dataPath != "" {
+					args = append(args, fmt.Sprintf("-%s=%s", "data_path", tc.dataPath))
+				} else {
+					args = append(args, fmt.Sprintf("-%s=%s", "data_path", ""))
+				}
+
+				if tc.key != "" {
+					args = append(args, fmt.Sprintf("-%s=%s", "cipher_key", tc.key))
+				} else {
+					args = append(args, fmt.Sprintf("-%s=%s", "cipher_key", ""))
+				}
+
+				os.Args = args
+
+				got, err := flags.GetFlags()
 				gotErr := err != nil
 
 				if gotErr != tc.wantErr {
@@ -111,10 +134,23 @@ func TestGetFlags_IdempotentValues(t *testing.T) {
 		}
 	}
 
-	*configPathFlag = studentsDataPath
-	*cipherKeyFlag = cipherKey
+	origArgs := os.Args
 
-	first, err := GetFlags()
+	defer func() {
+		os.Args = origArgs
+	}()
+
+	argv := []string{
+		"studify",
+		fmt.Sprintf("-%s=%s", "data_path", studentsDataPath),
+		fmt.Sprintf("-%s=%s", "cipher_key", cipherKey),
+	}
+
+	flags.ResetForTests(flag.NewFlagSet("studify", flag.ContinueOnError))
+
+	os.Args = append([]string(nil), argv...)
+
+	first, err := flags.GetFlags()
 	if err != nil {
 		t.Fatalf(
 			"[%s][Idempotent-first] unexpected error while getting flags: %v",
@@ -123,10 +159,11 @@ func TestGetFlags_IdempotentValues(t *testing.T) {
 		)
 	}
 
-	*configPathFlag = studentsDataPath
-	*cipherKeyFlag = cipherKey
+	flags.ResetForTests(flag.NewFlagSet("studify", flag.ContinueOnError))
 
-	second, err := GetFlags()
+	os.Args = append([]string(nil), argv...)
+
+	second, err := flags.GetFlags()
 	if err != nil {
 		t.Fatalf(
 			"[%s][Idempotent-second] unexpected error while getting flags: %v",
