@@ -3,10 +3,10 @@ package flags_test
 import (
 	"flag"
 	"fmt"
-	"github.com/k6zma/avito-lab1/internal/infrastructure/flags"
 	"os"
 	"testing"
 
+	"github.com/k6zma/avito-lab1/internal/infrastructure/flags"
 	"github.com/k6zma/avito-lab1/pkg/validators"
 )
 

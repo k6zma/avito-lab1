@@ -51,7 +51,11 @@ func GetFlags() (*StudyFlags, error) {
 
 func ResetForTests(fs *flag.FlagSet) {
 	flag.CommandLine = fs
-	
-	configPathFlag = flag.String(dataFilePathFlagName, dataFilePathFlagDefaultValue, dataFilePathFlagDesc)
+
+	configPathFlag = flag.String(
+		dataFilePathFlagName,
+		dataFilePathFlagDefaultValue,
+		dataFilePathFlagDesc,
+	)
 	cipherKeyFlag = flag.String(cipherKeyFlagName, cipherKetDefaultValue, cipherKeyFlagDesc)
 }

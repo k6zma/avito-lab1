@@ -75,29 +75,40 @@ func TestMapStudentCreateDTOToDomain_Success_And_Validation(t *testing.T) {
 	}
 
 	for i, tc := range tests {
-		t.Run(fmt.Sprintf("[%s]-create-%s-№%d", mapperTestPrefix, tc.name, i+1), func(t *testing.T) {
-			got, err := mappers.MapStudentCreateDTOToDomain(tc.in)
-			gotOK := err == nil
+		t.Run(
+			fmt.Sprintf("[%s]-create-%s-№%d", mapperTestPrefix, tc.name, i+1),
+			func(t *testing.T) {
+				got, err := mappers.MapStudentCreateDTOToDomain(tc.in)
+				gotOK := err == nil
 
-			if gotOK != tc.ok {
-				t.Fatalf("[%s][MapStudentCreateDTOToDomain] got ok=%v, want ok=%v (err=%v)",
-					mapperTestPrefix, gotOK, tc.ok, err)
-			}
+				if gotOK != tc.ok {
+					t.Fatalf("[%s][MapStudentCreateDTOToDomain] got ok=%v, want ok=%v (err=%v)",
+						mapperTestPrefix, gotOK, tc.ok, err)
+				}
 
-			if !tc.ok {
-				return
-			}
+				if !tc.ok {
+					return
+				}
 
-			if got.Name != tc.in.Name || got.Surname != tc.in.Surname || got.Age != tc.in.Age {
-				t.Fatalf("[%s][MapStudentCreateDTOToDomain] mismatch fields: got{Name:%q,Surname:%q,Age:%d} want{Name:%q,Surname:%q,Age:%d}",
-					mapperTestPrefix, got.Name, got.Surname, got.Age, tc.in.Name, tc.in.Surname, tc.in.Age)
-			}
+				if got.Name != tc.in.Name || got.Surname != tc.in.Surname || got.Age != tc.in.Age {
+					t.Fatalf(
+						"[%s][MapStudentCreateDTOToDomain] mismatch fields: got{Name:%q,Surname:%q,Age:%d} want{Name:%q,Surname:%q,Age:%d}",
+						mapperTestPrefix,
+						got.Name,
+						got.Surname,
+						got.Age,
+						tc.in.Name,
+						tc.in.Surname,
+						tc.in.Age,
+					)
+				}
 
-			if fmt.Sprint(got.Grades) != fmt.Sprint(tc.in.Grades) {
-				t.Fatalf("[%s][MapStudentCreateDTOToDomain] grades mismatch: got=%v want=%v",
-					mapperTestPrefix, got.Grades, tc.in.Grades)
-			}
-		})
+				if fmt.Sprint(got.Grades) != fmt.Sprint(tc.in.Grades) {
+					t.Fatalf("[%s][MapStudentCreateDTOToDomain] grades mismatch: got=%v want=%v",
+						mapperTestPrefix, got.Grades, tc.in.Grades)
+				}
+			},
+		)
 	}
 }
 
@@ -143,34 +154,45 @@ func TestMapStudentUpdateDTOToDomain_Success_And_Validation(t *testing.T) {
 	}
 
 	for i, tc := range tests {
-		t.Run(fmt.Sprintf("[%s]-update-%s-№%d", mapperTestPrefix, tc.name, i+1), func(t *testing.T) {
-			got, err := mappers.MapStudentUpdateDTOToDomain(tc.in)
-			gotOK := err == nil
+		t.Run(
+			fmt.Sprintf("[%s]-update-%s-№%d", mapperTestPrefix, tc.name, i+1),
+			func(t *testing.T) {
+				got, err := mappers.MapStudentUpdateDTOToDomain(tc.in)
+				gotOK := err == nil
 
-			if gotOK != tc.ok {
-				t.Fatalf("[%s][MapStudentUpdateDTOToDomain] got ok=%v, want ok=%v (err=%v)",
-					mapperTestPrefix, gotOK, tc.ok, err)
-			}
+				if gotOK != tc.ok {
+					t.Fatalf("[%s][MapStudentUpdateDTOToDomain] got ok=%v, want ok=%v (err=%v)",
+						mapperTestPrefix, gotOK, tc.ok, err)
+				}
 
-			if !tc.ok {
-				return
-			}
+				if !tc.ok {
+					return
+				}
 
-			if got.Name != tc.in.Name || got.Surname != tc.in.Surname || got.Age != tc.in.Age {
-				t.Fatalf("[%s][MapStudentUpdateDTOToDomain] mismatch fields: got{Name:%q,Surname:%q,Age:%d} want{Name:%q,Surname:%q,Age:%d}",
-					mapperTestPrefix, got.Name, got.Surname, got.Age, tc.in.Name, tc.in.Surname, tc.in.Age)
-			}
+				if got.Name != tc.in.Name || got.Surname != tc.in.Surname || got.Age != tc.in.Age {
+					t.Fatalf(
+						"[%s][MapStudentUpdateDTOToDomain] mismatch fields: got{Name:%q,Surname:%q,Age:%d} want{Name:%q,Surname:%q,Age:%d}",
+						mapperTestPrefix,
+						got.Name,
+						got.Surname,
+						got.Age,
+						tc.in.Name,
+						tc.in.Surname,
+						tc.in.Age,
+					)
+				}
 
-			if fmt.Sprint(got.Grades) != fmt.Sprint(tc.in.Grades) {
-				t.Fatalf("[%s][MapStudentUpdateDTOToDomain] grades mismatch: got=%v want=%v",
-					mapperTestPrefix, got.Grades, tc.in.Grades)
-			}
+				if fmt.Sprint(got.Grades) != fmt.Sprint(tc.in.Grades) {
+					t.Fatalf("[%s][MapStudentUpdateDTOToDomain] grades mismatch: got=%v want=%v",
+						mapperTestPrefix, got.Grades, tc.in.Grades)
+				}
 
-			if got.ID.String() != tc.in.ID {
-				t.Fatalf("[%s][MapStudentUpdateDTOToDomain] id mismatch: got=%s want=%s",
-					mapperTestPrefix, got.ID, tc.in.ID)
-			}
-		})
+				if got.ID.String() != tc.in.ID {
+					t.Fatalf("[%s][MapStudentUpdateDTOToDomain] id mismatch: got=%s want=%s",
+						mapperTestPrefix, got.ID, tc.in.ID)
+				}
+			},
+		)
 	}
 }
 
@@ -190,7 +212,12 @@ func TestMapAddGradesDTOToArgs_Success_And_Validation(t *testing.T) {
 	}
 
 	if gotID != id {
-		t.Fatalf("[%s][MapAddGradesDTOToArgs(ok)] id mismatch: got=%s want=%s", mapperTestPrefix, gotID, id)
+		t.Fatalf(
+			"[%s][MapAddGradesDTOToArgs(ok)] id mismatch: got=%s want=%s",
+			mapperTestPrefix,
+			gotID,
+			id,
+		)
 	}
 	if fmt.Sprint(gotGrades) != fmt.Sprint([]int{10, 20}) {
 		t.Fatalf("[%s][MapAddGradesDTOToArgs(ok)] grades mismatch: got=%v want=%v",
@@ -201,8 +228,10 @@ func TestMapAddGradesDTOToArgs_Success_And_Validation(t *testing.T) {
 		ID:     id.String(),
 		Grades: []int{150},
 	}); err == nil {
-		t.Fatalf("[%s][MapAddGradesDTOToArgs(invalid grade)] expected validation error for 150, got nil",
-			mapperTestPrefix)
+		t.Fatalf(
+			"[%s][MapAddGradesDTOToArgs(invalid grade)] expected validation error for 150, got nil",
+			mapperTestPrefix,
+		)
 	}
 
 	if _, _, err := mappers.MapAddGradesDTOToArgs(dtos.AddGradesDTO{
@@ -236,8 +265,10 @@ func TestMapGetByFullNameDTOToArgs_Success_And_Validation(t *testing.T) {
 		Name:    "mikhail",
 		Surname: "gunin",
 	}); err == nil {
-		t.Fatalf("[%s][MapGetByFullNameDTOToArgs(invalid)] expected validation error for non-capitalized, got nil",
-			mapperTestPrefix)
+		t.Fatalf(
+			"[%s][MapGetByFullNameDTOToArgs(invalid)] expected validation error for non-capitalized, got nil",
+			mapperTestPrefix,
+		)
 	}
 }
 
@@ -254,11 +285,19 @@ func TestMapGetByIDDTOToUUID_Success_And_Validation(t *testing.T) {
 	}
 
 	if got != id {
-		t.Fatalf("[%s][MapGetByIDDTOToUUID(ok)] id mismatch: got=%s want=%s", mapperTestPrefix, got, id)
+		t.Fatalf(
+			"[%s][MapGetByIDDTOToUUID(ok)] id mismatch: got=%s want=%s",
+			mapperTestPrefix,
+			got,
+			id,
+		)
 	}
 
 	if _, err := mappers.MapGetByIDDTOToUUID(dtos.GetByIDDTO{ID: "bad-uuid"}); err == nil {
-		t.Fatalf("[%s][MapGetByIDDTOToUUID(invalid)] expected error for bad uuid, got nil", mapperTestPrefix)
+		t.Fatalf(
+			"[%s][MapGetByIDDTOToUUID(invalid)] expected error for bad uuid, got nil",
+			mapperTestPrefix,
+		)
 	}
 }
 
@@ -278,7 +317,8 @@ func TestMapStudentDomainToDefaultResponseDTO_WithAndWithoutAVG_And_Nil(t *testi
 	}
 
 	with := mappers.MapStudentDomainToDefaultResponseDTO(st, true)
-	if with.ID != st.ID.String() || with.Name != st.Name || with.Surname != st.Surname || with.Age != st.Age {
+	if with.ID != st.ID.String() || with.Name != st.Name || with.Surname != st.Surname ||
+		with.Age != st.Age {
 		t.Fatalf("[%s][DomainToDTO(with avg)] fields mismatch: got{%q,%q,%q,%d} want{%q,%q,%q,%d}",
 			mapperTestPrefix, with.ID, with.Name, with.Surname, with.Age,
 			st.ID.String(), st.Name, st.Surname, st.Age)
@@ -290,16 +330,30 @@ func TestMapStudentDomainToDefaultResponseDTO_WithAndWithoutAVG_And_Nil(t *testi
 
 	want := (90.0 + 60.0) / 2.0
 	if *with.AvgGrade != want {
-		t.Fatalf("[%s][DomainToDTO(with avg)] avg mismatch: got=%v want=%v", mapperTestPrefix, *with.AvgGrade, want)
+		t.Fatalf(
+			"[%s][DomainToDTO(with avg)] avg mismatch: got=%v want=%v",
+			mapperTestPrefix,
+			*with.AvgGrade,
+			want,
+		)
 	}
 
 	if fmt.Sprint(with.Grades) != fmt.Sprint(st.Grades) {
-		t.Fatalf("[%s][DomainToDTO(with avg)] grades mismatch: got=%v want=%v", mapperTestPrefix, with.Grades, st.Grades)
+		t.Fatalf(
+			"[%s][DomainToDTO(with avg)] grades mismatch: got=%v want=%v",
+			mapperTestPrefix,
+			with.Grades,
+			st.Grades,
+		)
 	}
 
 	without := mappers.MapStudentDomainToDefaultResponseDTO(st, false)
 	if without.AvgGrade != nil {
-		t.Fatalf("[%s][DomainToDTO(without avg)] expected AvgGrade nil, got=%v", mapperTestPrefix, *without.AvgGrade)
+		t.Fatalf(
+			"[%s][DomainToDTO(without avg)] expected AvgGrade nil, got=%v",
+			mapperTestPrefix,
+			*without.AvgGrade,
+		)
 	}
 
 	stNo, err := models.NewStudentBuilder().
@@ -313,11 +367,16 @@ func TestMapStudentDomainToDefaultResponseDTO_WithAndWithoutAVG_And_Nil(t *testi
 
 	no := mappers.MapStudentDomainToDefaultResponseDTO(stNo, true)
 	if no.AvgGrade != nil {
-		t.Fatalf("[%s][DomainToDTO(empty)] expected AvgGrade nil for empty grades", mapperTestPrefix)
+		t.Fatalf(
+			"[%s][DomainToDTO(empty)] expected AvgGrade nil for empty grades",
+			mapperTestPrefix,
+		)
 	}
 
 	zero := mappers.MapStudentDomainToDefaultResponseDTO(nil, true)
-	if zero.ID != "" || zero.Name != "" || zero.Surname != "" || zero.Age != 0 || len(zero.Grades) != 0 || zero.AvgGrade != nil {
+	if zero.ID != "" || zero.Name != "" || zero.Surname != "" || zero.Age != 0 ||
+		len(zero.Grades) != 0 ||
+		zero.AvgGrade != nil {
 		t.Fatalf("[%s][DomainToDTO(nil)] expected zero value dto, got=%+v", mapperTestPrefix, zero)
 	}
 }
@@ -349,18 +408,33 @@ func TestMapStudentsDomainToListDTO_IncludeGrades_And_NilItems(t *testing.T) {
 
 	listNo := mappers.MapStudentsDomainToListDTO([]*models.Student{a, nil, b}, false)
 	if len(listNo) != 2 {
-		t.Fatalf("[%s][ListMap(false)] length mismatch: got=%d want=%d", mapperTestPrefix, len(listNo), 2)
+		t.Fatalf(
+			"[%s][ListMap(false)] length mismatch: got=%d want=%d",
+			mapperTestPrefix,
+			len(listNo),
+			2,
+		)
 	}
 
 	for i, it := range listNo {
 		if len(it.Grades) != 0 {
-			t.Fatalf("[%s][ListMap(false)] grades should be omitted at idx=%d, got=%v", mapperTestPrefix, i, it.Grades)
+			t.Fatalf(
+				"[%s][ListMap(false)] grades should be omitted at idx=%d, got=%v",
+				mapperTestPrefix,
+				i,
+				it.Grades,
+			)
 		}
 	}
 
 	listYes := mappers.MapStudentsDomainToListDTO([]*models.Student{a, nil, b}, true)
 	if len(listYes) != 2 {
-		t.Fatalf("[%s][ListMap(true)] length mismatch: got=%d want=%d", mapperTestPrefix, len(listYes), 2)
+		t.Fatalf(
+			"[%s][ListMap(true)] length mismatch: got=%d want=%d",
+			mapperTestPrefix,
+			len(listYes),
+			2,
+		)
 	}
 
 	hasGrades := 0
@@ -371,6 +445,10 @@ func TestMapStudentsDomainToListDTO_IncludeGrades_And_NilItems(t *testing.T) {
 	}
 
 	if hasGrades != 2 {
-		t.Fatalf("[%s][ListMap(true)] expected grades for all items, count with grades=%d", mapperTestPrefix, hasGrades)
+		t.Fatalf(
+			"[%s][ListMap(true)] expected grades for all items, count with grades=%d",
+			mapperTestPrefix,
+			hasGrades,
+		)
 	}
 }
