@@ -1,7 +1,6 @@
 package services_test
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -26,9 +25,7 @@ func TestStudentService_Register_And_GetByID(t *testing.T) {
 		t.Fatalf("[%s][Register_And_GetByID] failed to init validators: %v", serviceTestPrefix, err)
 	}
 
-	ctx := context.Background()
-
-	repo, err := infrarepo.NewStudentStorageWithPersister(ctx, nil)
+	repo, err := infrarepo.NewStudentStorageWithPersister(nil)
 	if err != nil {
 		t.Fatalf(
 			"[%s][Register_And_GetByID] error while creating repository: %v",
@@ -65,7 +62,7 @@ func TestStudentService_Register_And_GetByID(t *testing.T) {
 		t.Run(
 			fmt.Sprintf("[%s]-register-%s-№%d", serviceTestPrefix, tc.name, i+1),
 			func(t *testing.T) {
-				resp, err := svc.Register(ctx, tc.payload)
+				resp, err := svc.Register(tc.payload)
 				gotOK := err == nil
 
 				if gotOK != tc.ok {
@@ -116,7 +113,7 @@ func TestStudentService_Register_And_GetByID(t *testing.T) {
 					}
 				}
 
-				getResp, err := svc.GetByID(ctx, dtos.GetByIDDTO{ID: resp.ID})
+				getResp, err := svc.GetByID(dtos.GetByIDDTO{ID: resp.ID})
 				if err != nil {
 					t.Fatalf("[%s][GetByID] unexpected error: %v", serviceTestPrefix, err)
 				}
@@ -144,16 +141,14 @@ func TestStudentService_Update_Success_And_Validation(t *testing.T) {
 		t.Fatalf("[%s][Update] failed to init validators: %v", serviceTestPrefix, err)
 	}
 
-	ctx := context.Background()
-
-	repo, err := infrarepo.NewStudentStorageWithPersister(ctx, nil)
+	repo, err := infrarepo.NewStudentStorageWithPersister(nil)
 	if err != nil {
 		t.Fatalf("[%s][Update] error while creating repository: %v", serviceTestPrefix, err)
 	}
 
 	svc := services.NewStudentService(repo)
 
-	created, err := svc.Register(ctx, dtos.StudentCreateDTO{
+	created, err := svc.Register(dtos.StudentCreateDTO{
 		Name:    "Mikhail",
 		Surname: "Gunin",
 		Age:     19,
@@ -167,7 +162,7 @@ func TestStudentService_Update_Success_And_Validation(t *testing.T) {
 		)
 	}
 
-	upd, err := svc.Update(ctx, dtos.StudentUpdateDTO{
+	upd, err := svc.Update(dtos.StudentUpdateDTO{
 		ID:      created.ID,
 		Name:    "Alexander",
 		Surname: "Gunin",
@@ -189,7 +184,7 @@ func TestStudentService_Update_Success_And_Validation(t *testing.T) {
 		)
 	}
 
-	if _, err := svc.Update(ctx, dtos.StudentUpdateDTO{
+	if _, err := svc.Update(dtos.StudentUpdateDTO{
 		ID:      created.ID,
 		Name:    "alexander",
 		Surname: "gunin",
@@ -207,16 +202,14 @@ func TestStudentService_DeleteByID(t *testing.T) {
 		t.Fatalf("[%s][DeleteByID] failed to init validators: %v", serviceTestPrefix, err)
 	}
 
-	ctx := context.Background()
-
-	repo, err := infrarepo.NewStudentStorageWithPersister(ctx, nil)
+	repo, err := infrarepo.NewStudentStorageWithPersister(nil)
 	if err != nil {
 		t.Fatalf("[%s][DeleteByID] error while creating repository: %v", serviceTestPrefix, err)
 	}
 
 	svc := services.NewStudentService(repo)
 
-	created, err := svc.Register(ctx, dtos.StudentCreateDTO{
+	created, err := svc.Register(dtos.StudentCreateDTO{
 		Name:    "Mikhail",
 		Surname: "Gunin",
 		Age:     19,
@@ -229,7 +222,7 @@ func TestStudentService_DeleteByID(t *testing.T) {
 		)
 	}
 
-	if err := svc.DeleteByID(ctx, dtos.GetByIDDTO{ID: created.ID}); err != nil {
+	if err := svc.DeleteByID(dtos.GetByIDDTO{ID: created.ID}); err != nil {
 		t.Fatalf(
 			"[%s][DeleteByID] unexpected error while deleting student: %v",
 			serviceTestPrefix,
@@ -237,7 +230,7 @@ func TestStudentService_DeleteByID(t *testing.T) {
 		)
 	}
 
-	if _, err := svc.GetByID(ctx, dtos.GetByIDDTO{ID: created.ID}); err == nil {
+	if _, err := svc.GetByID(dtos.GetByIDDTO{ID: created.ID}); err == nil {
 		t.Fatalf(
 			"[%s][GetByID(after delete)] expected error for deleted ID=%s, got nil",
 			serviceTestPrefix,
@@ -251,15 +244,13 @@ func TestStudentService_GetByFullName(t *testing.T) {
 		t.Fatalf("[%s][GetByFullName] failed to init validators: %v", serviceTestPrefix, err)
 	}
 
-	ctx := context.Background()
-
-	repo, err := infrarepo.NewStudentStorageWithPersister(ctx, nil)
+	repo, err := infrarepo.NewStudentStorageWithPersister(nil)
 	if err != nil {
 		t.Fatalf("[%s][GetByFullName] error while creating repository: %v", serviceTestPrefix, err)
 	}
 	svc := services.NewStudentService(repo)
 
-	created, err := svc.Register(ctx, dtos.StudentCreateDTO{
+	created, err := svc.Register(dtos.StudentCreateDTO{
 		Name:    "Mikhail",
 		Surname: "Gunin",
 		Age:     19,
@@ -272,7 +263,7 @@ func TestStudentService_GetByFullName(t *testing.T) {
 		)
 	}
 
-	got, err := svc.GetByFullName(ctx, dtos.GetByFullNameDTO{
+	got, err := svc.GetByFullName(dtos.GetByFullNameDTO{
 		Name:    "Mikhail",
 		Surname: "Gunin",
 	})
@@ -299,16 +290,14 @@ func TestStudentService_List_WithAndWithoutGrades(t *testing.T) {
 		t.Fatalf("[%s][List] failed to init validators: %v", serviceTestPrefix, err)
 	}
 
-	ctx := context.Background()
-
-	repo, err := infrarepo.NewStudentStorageWithPersister(ctx, nil)
+	repo, err := infrarepo.NewStudentStorageWithPersister(nil)
 	if err != nil {
 		t.Fatalf("[%s][List] error while creating repository: %v", serviceTestPrefix, err)
 	}
 
 	svc := services.NewStudentService(repo)
 
-	_, err = svc.Register(ctx, dtos.StudentCreateDTO{
+	_, err = svc.Register(dtos.StudentCreateDTO{
 		Name:    "Eleven",
 		Surname: "Doctor",
 		Age:     100,
@@ -318,7 +307,7 @@ func TestStudentService_List_WithAndWithoutGrades(t *testing.T) {
 		t.Fatalf("[%s][Register(a)] unexpected error: %v", serviceTestPrefix, err)
 	}
 
-	_, err = svc.Register(ctx, dtos.StudentCreateDTO{
+	_, err = svc.Register(dtos.StudentCreateDTO{
 		Name:    "Mikhail",
 		Surname: "Gunin",
 		Age:     19,
@@ -328,7 +317,7 @@ func TestStudentService_List_WithAndWithoutGrades(t *testing.T) {
 		t.Fatalf("[%s][Register(b)] unexpected error: %v", serviceTestPrefix, err)
 	}
 
-	listNo, err := svc.List(ctx, false)
+	listNo, err := svc.List(false)
 	if err != nil {
 		t.Fatalf("[%s][List(false)] unexpected error: %v", serviceTestPrefix, err)
 	}
@@ -353,7 +342,7 @@ func TestStudentService_List_WithAndWithoutGrades(t *testing.T) {
 		}
 	}
 
-	listYes, err := svc.List(ctx, true)
+	listYes, err := svc.List(true)
 	if err != nil {
 		t.Fatalf("[%s][List(true)] unexpected error: %v", serviceTestPrefix, err)
 	}
@@ -388,16 +377,14 @@ func TestStudentService_AddGrades_Success_And_Validation(t *testing.T) {
 		t.Fatalf("[%s][AddGrades] failed to init validators: %v", serviceTestPrefix, err)
 	}
 
-	ctx := context.Background()
-
-	repo, err := infrarepo.NewStudentStorageWithPersister(ctx, nil)
+	repo, err := infrarepo.NewStudentStorageWithPersister(nil)
 	if err != nil {
 		t.Fatalf("[%s][AddGrades] error while creating repository: %v", serviceTestPrefix, err)
 	}
 
 	svc := services.NewStudentService(repo)
 
-	created, err := svc.Register(ctx, dtos.StudentCreateDTO{
+	created, err := svc.Register(dtos.StudentCreateDTO{
 		Name:    "Mikhail",
 		Surname: "Gunin",
 		Age:     19,
@@ -411,7 +398,7 @@ func TestStudentService_AddGrades_Success_And_Validation(t *testing.T) {
 		)
 	}
 
-	back, err := svc.AddGrades(ctx, dtos.AddGradesDTO{
+	back, err := svc.AddGrades(dtos.AddGradesDTO{
 		ID:     created.ID,
 		Grades: []int{80, 90},
 	})
@@ -432,7 +419,7 @@ func TestStudentService_AddGrades_Success_And_Validation(t *testing.T) {
 		t.Fatalf("[%s][AddGrades(valid)] expected AvgGrade not nil", serviceTestPrefix)
 	}
 
-	if _, err := svc.AddGrades(ctx, dtos.AddGradesDTO{
+	if _, err := svc.AddGrades(dtos.AddGradesDTO{
 		ID:     created.ID,
 		Grades: []int{150},
 	}); err == nil {
@@ -448,16 +435,14 @@ func TestStudentService_AVGByID(t *testing.T) {
 		t.Fatalf("[%s][AVGByID] failed to init validators: %v", serviceTestPrefix, err)
 	}
 
-	ctx := context.Background()
-
-	repo, err := infrarepo.NewStudentStorageWithPersister(ctx, nil)
+	repo, err := infrarepo.NewStudentStorageWithPersister(nil)
 	if err != nil {
 		t.Fatalf("[%s][AVGByID] error while creating repository: %v", serviceTestPrefix, err)
 	}
 
 	svc := services.NewStudentService(repo)
 
-	a, err := svc.Register(ctx, dtos.StudentCreateDTO{
+	a, err := svc.Register(dtos.StudentCreateDTO{
 		Name:    "Mikhail",
 		Surname: "Gunin",
 		Age:     20,
@@ -466,7 +451,7 @@ func TestStudentService_AVGByID(t *testing.T) {
 		t.Fatalf("[%s][Register(a)] unexpected error: %v", serviceTestPrefix, err)
 	}
 
-	avgA, err := svc.AVGByID(ctx, dtos.GetByIDDTO{ID: a.ID})
+	avgA, err := svc.AVGByID(dtos.GetByIDDTO{ID: a.ID})
 	if err != nil {
 		t.Fatalf("[%s][AVGByID(no grades)] unexpected error: %v", serviceTestPrefix, err)
 	}
@@ -480,7 +465,7 @@ func TestStudentService_AVGByID(t *testing.T) {
 		)
 	}
 
-	b, err := svc.Register(ctx, dtos.StudentCreateDTO{
+	b, err := svc.Register(dtos.StudentCreateDTO{
 		Name:    "With",
 		Surname: "Grades",
 		Age:     21,
@@ -490,7 +475,7 @@ func TestStudentService_AVGByID(t *testing.T) {
 		t.Fatalf("[%s][Register(b)] unexpected error: %v", serviceTestPrefix, err)
 	}
 
-	avgB, err := svc.AVGByID(ctx, dtos.GetByIDDTO{ID: b.ID})
+	avgB, err := svc.AVGByID(dtos.GetByIDDTO{ID: b.ID})
 	if err != nil {
 		t.Fatalf("[%s][AVGByID(with grades)] unexpected error: %v", serviceTestPrefix, err)
 	}

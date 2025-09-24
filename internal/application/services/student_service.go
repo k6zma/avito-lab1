@@ -1,7 +1,6 @@
 package services
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/k6zma/avito-lab1/internal/application/dtos"
@@ -10,19 +9,14 @@ import (
 )
 
 type StudentServiceContract interface {
-	Register(ctx context.Context, in dtos.StudentCreateDTO) (dtos.DefaultStudentResponseDTO, error)
-	Update(ctx context.Context, in dtos.StudentUpdateDTO) (dtos.DefaultStudentResponseDTO, error)
-	DeleteByID(ctx context.Context, in dtos.GetByIDDTO) error
-
-	GetByID(ctx context.Context, in dtos.GetByIDDTO) (dtos.DefaultStudentResponseDTO, error)
-	GetByFullName(
-		ctx context.Context,
-		in dtos.GetByFullNameDTO,
-	) (dtos.DefaultStudentResponseDTO, error)
-	List(ctx context.Context, includeGrades bool) ([]dtos.StudentListItemDTO, error)
-
-	AddGrades(ctx context.Context, in dtos.AddGradesDTO) (dtos.DefaultStudentResponseDTO, error)
-	AVGByID(ctx context.Context, in dtos.GetByIDDTO) (dtos.AVGResponseDTO, error)
+	Register(in dtos.StudentCreateDTO) (dtos.DefaultStudentResponseDTO, error)
+	Update(in dtos.StudentUpdateDTO) (dtos.DefaultStudentResponseDTO, error)
+	DeleteByID(in dtos.GetByIDDTO) error
+	GetByID(in dtos.GetByIDDTO) (dtos.DefaultStudentResponseDTO, error)
+	GetByFullName(in dtos.GetByFullNameDTO) (dtos.DefaultStudentResponseDTO, error)
+	List(includeGrades bool) ([]dtos.StudentListItemDTO, error)
+	AddGrades(in dtos.AddGradesDTO) (dtos.DefaultStudentResponseDTO, error)
+	AVGByID(in dtos.GetByIDDTO) (dtos.AVGResponseDTO, error)
 }
 
 type StudentService struct {
@@ -36,7 +30,6 @@ func NewStudentService(repo repositories.StudentRepository) StudentServiceContra
 }
 
 func (s *StudentService) Register(
-	ctx context.Context,
 	in dtos.StudentCreateDTO,
 ) (dtos.DefaultStudentResponseDTO, error) {
 	student, err := mappers.MapStudentCreateDTOToDomain(in)
@@ -47,7 +40,7 @@ func (s *StudentService) Register(
 		)
 	}
 
-	id, err := s.studentRepo.Create(ctx, student)
+	id, err := s.studentRepo.Create(student)
 	if err != nil {
 		return dtos.DefaultStudentResponseDTO{}, fmt.Errorf(
 			"failed to create student in repository: %w",
@@ -55,7 +48,7 @@ func (s *StudentService) Register(
 		)
 	}
 
-	back, err := s.studentRepo.GetByID(ctx, id)
+	back, err := s.studentRepo.GetByID(id)
 	if err != nil {
 		return dtos.DefaultStudentResponseDTO{}, fmt.Errorf(
 			"failed to fetch student after create: %w",
@@ -67,7 +60,6 @@ func (s *StudentService) Register(
 }
 
 func (s *StudentService) Update(
-	ctx context.Context,
 	in dtos.StudentUpdateDTO,
 ) (dtos.DefaultStudentResponseDTO, error) {
 	student, err := mappers.MapStudentUpdateDTOToDomain(in)
@@ -78,14 +70,14 @@ func (s *StudentService) Update(
 		)
 	}
 
-	if err := s.studentRepo.Update(ctx, student); err != nil {
+	if err := s.studentRepo.Update(student); err != nil {
 		return dtos.DefaultStudentResponseDTO{}, fmt.Errorf(
 			"failed to update student in repository: %w",
 			err,
 		)
 	}
 
-	back, err := s.studentRepo.GetByID(ctx, student.ID)
+	back, err := s.studentRepo.GetByID(student.ID)
 	if err != nil {
 		return dtos.DefaultStudentResponseDTO{}, fmt.Errorf(
 			"failed to fetch student after update: %w",
@@ -96,13 +88,13 @@ func (s *StudentService) Update(
 	return mappers.MapStudentDomainToDefaultResponseDTO(back, true), nil
 }
 
-func (s *StudentService) DeleteByID(ctx context.Context, in dtos.GetByIDDTO) error {
+func (s *StudentService) DeleteByID(in dtos.GetByIDDTO) error {
 	id, err := mappers.MapGetByIDDTOToUUID(in)
 	if err != nil {
 		return fmt.Errorf("failed to map get-by-id dto to uuid: %w", err)
 	}
 
-	if err := s.studentRepo.DeleteByID(ctx, id); err != nil {
+	if err := s.studentRepo.DeleteByID(id); err != nil {
 		return fmt.Errorf("failed to delete student in repository: %w", err)
 	}
 
@@ -110,7 +102,6 @@ func (s *StudentService) DeleteByID(ctx context.Context, in dtos.GetByIDDTO) err
 }
 
 func (s *StudentService) GetByID(
-	ctx context.Context,
 	in dtos.GetByIDDTO,
 ) (dtos.DefaultStudentResponseDTO, error) {
 	id, err := mappers.MapGetByIDDTOToUUID(in)
@@ -121,7 +112,7 @@ func (s *StudentService) GetByID(
 		)
 	}
 
-	student, err := s.studentRepo.GetByID(ctx, id)
+	student, err := s.studentRepo.GetByID(id)
 	if err != nil {
 		return dtos.DefaultStudentResponseDTO{}, fmt.Errorf("failed to get student by id: %w", err)
 	}
@@ -130,7 +121,6 @@ func (s *StudentService) GetByID(
 }
 
 func (s *StudentService) GetByFullName(
-	ctx context.Context,
 	in dtos.GetByFullNameDTO,
 ) (dtos.DefaultStudentResponseDTO, error) {
 	name, surname, err := mappers.MapGetByFullNameDTOToArgs(in)
@@ -141,7 +131,7 @@ func (s *StudentService) GetByFullName(
 		)
 	}
 
-	student, err := s.studentRepo.GetByFullName(ctx, name, surname)
+	student, err := s.studentRepo.GetByFullName(name, surname)
 	if err != nil {
 		return dtos.DefaultStudentResponseDTO{}, fmt.Errorf(
 			"failed to get student by full name: %w",
@@ -153,10 +143,9 @@ func (s *StudentService) GetByFullName(
 }
 
 func (s *StudentService) List(
-	ctx context.Context,
 	includeGrades bool,
 ) ([]dtos.StudentListItemDTO, error) {
-	list, err := s.studentRepo.List(ctx)
+	list, err := s.studentRepo.List()
 	if err != nil {
 		return nil, fmt.Errorf("failed to list students: %w", err)
 	}
@@ -165,7 +154,6 @@ func (s *StudentService) List(
 }
 
 func (s *StudentService) AddGrades(
-	ctx context.Context,
 	in dtos.AddGradesDTO,
 ) (dtos.DefaultStudentResponseDTO, error) {
 	id, grades, err := mappers.MapAddGradesDTOToArgs(in)
@@ -173,14 +161,14 @@ func (s *StudentService) AddGrades(
 		return dtos.DefaultStudentResponseDTO{}, fmt.Errorf("failed to map add-grades dto: %w", err)
 	}
 
-	if err := s.studentRepo.AddGrades(ctx, id, grades...); err != nil {
+	if err := s.studentRepo.AddGrades(id, grades...); err != nil {
 		return dtos.DefaultStudentResponseDTO{}, fmt.Errorf(
 			"failed to add grades in repository: %w",
 			err,
 		)
 	}
 
-	back, err := s.studentRepo.GetByID(ctx, id)
+	back, err := s.studentRepo.GetByID(id)
 	if err != nil {
 		return dtos.DefaultStudentResponseDTO{}, fmt.Errorf(
 			"failed to fetch student after add-grades: %w",
@@ -192,7 +180,6 @@ func (s *StudentService) AddGrades(
 }
 
 func (s *StudentService) AVGByID(
-	ctx context.Context,
 	in dtos.GetByIDDTO,
 ) (dtos.AVGResponseDTO, error) {
 	id, err := mappers.MapGetByIDDTOToUUID(in)
@@ -200,7 +187,7 @@ func (s *StudentService) AVGByID(
 		return dtos.AVGResponseDTO{}, fmt.Errorf("failed to map get-by-id dto to uuid: %w", err)
 	}
 
-	st, err := s.studentRepo.GetByID(ctx, id)
+	st, err := s.studentRepo.GetByID(id)
 	if err != nil {
 		return dtos.AVGResponseDTO{}, fmt.Errorf("failed to get student by id: %w", err)
 	}

@@ -16,10 +16,6 @@ type Student struct {
 	Grades  []int     `json:"grades"  validate:"omitempty,dive,gte=0,lte=100"`
 }
 
-// =============================================
-// Realization of custom setters with validation
-// =============================================
-
 func (s *Student) SetID(id uuid.UUID) error {
 	if err := validators.Validate.Var(id, "required"); err != nil {
 		return fmt.Errorf("error while validating student id (UUID) in student id setter: %w", err)
@@ -98,10 +94,6 @@ func (s *Student) Clone() *Student {
 
 	return &cp
 }
-
-// ================================================
-// Realization of Builder pattern for Student model
-// ================================================
 
 type StudentBuilder interface {
 	SetID(id uuid.UUID) StudentBuilder

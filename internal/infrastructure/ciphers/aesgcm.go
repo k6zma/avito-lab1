@@ -1,7 +1,6 @@
 package ciphers
 
 import (
-	"context"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
