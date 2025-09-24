@@ -1,7 +1,6 @@
 package repositories_test
 
 import (
-	"context"
 	"fmt"
 	"path/filepath"
 	"testing"
@@ -31,9 +30,7 @@ func TestRepository_Create_And_GetByID(t *testing.T) {
 		t.Fatalf("[%s][Create_And_GetByID] failed to init validators: %v", repoImplTestPrefix, err)
 	}
 
-	ctx := context.Background()
-
-	repo, err := repositories.NewStudentStorageWithPersister(ctx, nil)
+	repo, err := repositories.NewStudentStorageWithPersister(nil)
 	if err != nil {
 		t.Fatalf(
 			"[%s][Create_And_GetByID] error while creating repository with nil persister: %v",
@@ -56,7 +53,7 @@ func TestRepository_Create_And_GetByID(t *testing.T) {
 		)
 	}
 
-	id, err := repo.Create(ctx, st)
+	id, err := repo.Create(st)
 	if err != nil {
 		t.Fatalf(
 			"[%s][Create] unexpected error while creating student from storage: %v",
@@ -65,7 +62,7 @@ func TestRepository_Create_And_GetByID(t *testing.T) {
 		)
 	}
 
-	got, err := repo.GetByID(ctx, id)
+	got, err := repo.GetByID(id)
 	if err != nil {
 		t.Fatalf(
 			"[%s][GetByID-2] unexpected error while getting student from storage: %v",
@@ -91,7 +88,7 @@ func TestRepository_Create_And_GetByID(t *testing.T) {
 
 	got.Name = "Change name to check copy"
 
-	back, err := repo.GetByID(ctx, id)
+	back, err := repo.GetByID(id)
 	if err != nil {
 		t.Fatalf(
 			"[%s][GetByID-2] unexpected error while getting student by id: %v",
@@ -113,9 +110,7 @@ func TestRepository_Create_DuplicateID(t *testing.T) {
 		t.Fatalf("[%s][Create_DuplicateID] failed to init validators: %v", repoImplTestPrefix, err)
 	}
 
-	ctx := context.Background()
-
-	repo, err := repositories.NewStudentStorageWithPersister(ctx, nil)
+	repo, err := repositories.NewStudentStorageWithPersister(nil)
 	if err != nil {
 		t.Fatalf(
 			"[%s][Create_DuplicateID] error while creating repository with nil persister: %v",
@@ -153,7 +148,7 @@ func TestRepository_Create_DuplicateID(t *testing.T) {
 
 	st2.ID = st1.ID
 
-	if _, err := repo.Create(ctx, st1); err != nil {
+	if _, err := repo.Create(st1); err != nil {
 		t.Fatalf(
 			"[%s][Create(first)] unexpected error while creating frist student in storage: %v",
 			repoImplTestPrefix,
@@ -161,7 +156,7 @@ func TestRepository_Create_DuplicateID(t *testing.T) {
 		)
 	}
 
-	if _, err := repo.Create(ctx, st2); err == nil {
+	if _, err := repo.Create(st2); err == nil {
 		t.Fatalf(
 			"[%s][Create(duplicate)] expected error while creating second student on duplicate ID=%s, got nil",
 			repoImplTestPrefix,
@@ -175,9 +170,7 @@ func TestRepository_Create_InvalidStudent(t *testing.T) {
 		t.Fatalf("[%s][Create_Invalid] failed to init validators: %v", repoImplTestPrefix, err)
 	}
 
-	ctx := context.Background()
-
-	repo, err := repositories.NewStudentStorageWithPersister(ctx, nil)
+	repo, err := repositories.NewStudentStorageWithPersister(nil)
 	if err != nil {
 		t.Fatalf(
 			"[%s][Create_Invalid] error while creating repository with nil persister: %v",
@@ -201,7 +194,7 @@ func TestRepository_Create_InvalidStudent(t *testing.T) {
 
 	s.Name = "mikhail"
 
-	if _, err := repo.Create(ctx, s); err == nil {
+	if _, err := repo.Create(s); err == nil {
 		t.Fatalf(
 			"[%s][Create_Invalid] expected validation error for Name=%q, got nil",
 			repoImplTestPrefix,
@@ -215,9 +208,7 @@ func TestRepository_GetByFullName(t *testing.T) {
 		t.Fatalf("[%s][GetByFullName] failed to init validators: %v", repoImplTestPrefix, err)
 	}
 
-	ctx := context.Background()
-
-	repo, err := repositories.NewStudentStorageWithPersister(ctx, nil)
+	repo, err := repositories.NewStudentStorageWithPersister(nil)
 	if err != nil {
 		t.Fatalf(
 			"[%s][GetByFullName] error while creating repository with nil persister: %v",
@@ -240,7 +231,7 @@ func TestRepository_GetByFullName(t *testing.T) {
 		)
 	}
 
-	id, err := repo.Create(ctx, st)
+	id, err := repo.Create(st)
 	if err != nil {
 		t.Fatalf(
 			"[%s][Create] unexpected error while creating Student in storage: %v",
@@ -249,7 +240,7 @@ func TestRepository_GetByFullName(t *testing.T) {
 		)
 	}
 
-	got, err := repo.GetByFullName(ctx, "Mikhail", "Gunin")
+	got, err := repo.GetByFullName("Mikhail", "Gunin")
 	if err != nil {
 		t.Fatalf(
 			"[%s][GetByFullName] unexpected error while getting student by fullname from storage: %v",
@@ -268,9 +259,7 @@ func TestRepository_Update_Success_And_Validation(t *testing.T) {
 		t.Fatalf("[%s][Update] failed to init validators: %v", repoImplTestPrefix, err)
 	}
 
-	ctx := context.Background()
-
-	repo, err := repositories.NewStudentStorageWithPersister(ctx, nil)
+	repo, err := repositories.NewStudentStorageWithPersister(nil)
 	if err != nil {
 		t.Fatalf(
 			"[%s][Update] error while creating repository with nil persister: %v",
@@ -293,7 +282,7 @@ func TestRepository_Update_Success_And_Validation(t *testing.T) {
 		)
 	}
 
-	id, err := repo.Create(ctx, orig)
+	id, err := repo.Create(orig)
 	if err != nil {
 		t.Fatalf("[%s][Create] unexpected error: %v", repoImplTestPrefix, err)
 	}
@@ -313,7 +302,7 @@ func TestRepository_Update_Success_And_Validation(t *testing.T) {
 	}
 
 	upd.ID = id
-	if err := repo.Update(ctx, upd); err != nil {
+	if err := repo.Update(upd); err != nil {
 		t.Fatalf(
 			"[%s][Update(valid)] unexpected error while updating student in storage: %v",
 			repoImplTestPrefix,
@@ -321,7 +310,7 @@ func TestRepository_Update_Success_And_Validation(t *testing.T) {
 		)
 	}
 
-	back, err := repo.GetByID(ctx, id)
+	back, err := repo.GetByID(id)
 	if err != nil {
 		t.Fatalf("[%s][GetByID(after update)] unexpected error: %v", repoImplTestPrefix, err)
 	}
@@ -354,7 +343,7 @@ func TestRepository_Update_Success_And_Validation(t *testing.T) {
 	bad.ID = id
 	bad.Name = "mikhail"
 
-	if err := repo.Update(ctx, bad); err == nil {
+	if err := repo.Update(bad); err == nil {
 		t.Fatalf(
 			"[%s][Update(invalid)] expected validation error for Name=%q, got nil",
 			repoImplTestPrefix,
@@ -368,9 +357,7 @@ func TestRepository_AddGrades(t *testing.T) {
 		t.Fatalf("[%s][AddGrades] failed to init validators: %v", repoImplTestPrefix, err)
 	}
 
-	ctx := context.Background()
-
-	repo, err := repositories.NewStudentStorageWithPersister(ctx, nil)
+	repo, err := repositories.NewStudentStorageWithPersister(nil)
 	if err != nil {
 		t.Fatalf(
 			"[%s][AddGrades] error while creating repository with nil persister: %v",
@@ -393,7 +380,7 @@ func TestRepository_AddGrades(t *testing.T) {
 		)
 	}
 
-	id, err := repo.Create(ctx, st)
+	id, err := repo.Create(st)
 	if err != nil {
 		t.Fatalf(
 			"[%s][Create] unexpected error while creating Student in storage: %v",
@@ -402,7 +389,7 @@ func TestRepository_AddGrades(t *testing.T) {
 		)
 	}
 
-	if err := repo.AddGrades(ctx, id, 80, 90); err != nil {
+	if err := repo.AddGrades(id, 80, 90); err != nil {
 		t.Fatalf(
 			"[%s][AddGrades(valid)] unexpected error while adding grades for student: %v",
 			repoImplTestPrefix,
@@ -410,7 +397,7 @@ func TestRepository_AddGrades(t *testing.T) {
 		)
 	}
 
-	after, err := repo.GetByID(ctx, id)
+	after, err := repo.GetByID(id)
 	if err != nil {
 		t.Fatalf(
 			"[%s][GetByID(after add)] unexpected error while getting Student by ID: %v",
@@ -424,7 +411,7 @@ func TestRepository_AddGrades(t *testing.T) {
 			repoImplTestPrefix, len(after.Grades), 3, after.Grades)
 	}
 
-	if err := repo.AddGrades(ctx, id, 150); err == nil {
+	if err := repo.AddGrades(id, 150); err == nil {
 		t.Fatalf(
 			"[%s][AddGrades(invalid)] expected validation error for grade=150, got nil",
 			repoImplTestPrefix,
@@ -437,9 +424,7 @@ func TestRepository_DeleteByID(t *testing.T) {
 		t.Fatalf("[%s][DeleteByID] failed to init validators: %v", repoImplTestPrefix, err)
 	}
 
-	ctx := context.Background()
-
-	repo, err := repositories.NewStudentStorageWithPersister(ctx, nil)
+	repo, err := repositories.NewStudentStorageWithPersister(nil)
 	if err != nil {
 		t.Fatalf(
 			"[%s][DeleteByID] error while creating repository with nil persister: %v",
@@ -461,7 +446,7 @@ func TestRepository_DeleteByID(t *testing.T) {
 		)
 	}
 
-	id, err := repo.Create(ctx, st)
+	id, err := repo.Create(st)
 	if err != nil {
 		t.Fatalf(
 			"[%s][Create] unexpected error while creating student in storage: %v",
@@ -470,7 +455,7 @@ func TestRepository_DeleteByID(t *testing.T) {
 		)
 	}
 
-	if err := repo.DeleteByID(ctx, id); err != nil {
+	if err := repo.DeleteByID(id); err != nil {
 		t.Fatalf(
 			"[%s][DeleteByID] unexpected error while deleting student from storage by ID: %v",
 			repoImplTestPrefix,
@@ -478,7 +463,7 @@ func TestRepository_DeleteByID(t *testing.T) {
 		)
 	}
 
-	if _, err := repo.GetByID(ctx, id); err == nil {
+	if _, err := repo.GetByID(id); err == nil {
 		t.Fatalf(
 			"[%s][GetByID(after delete)] expected not found for ID=%s, got nil error",
 			repoImplTestPrefix,
@@ -492,9 +477,7 @@ func TestRepository_List_ReturnsCopies(t *testing.T) {
 		t.Fatalf("[%s][List_ReturnsCopies] failed to init validators: %v", repoImplTestPrefix, err)
 	}
 
-	ctx := context.Background()
-
-	repo, err := repositories.NewStudentStorageWithPersister(ctx, nil)
+	repo, err := repositories.NewStudentStorageWithPersister(nil)
 	if err != nil {
 		t.Fatalf(
 			"[%s][List_ReturnsCopies] error while creating repository with nil persister: %v",
@@ -517,7 +500,7 @@ func TestRepository_List_ReturnsCopies(t *testing.T) {
 		)
 	}
 
-	id1, err := repo.Create(ctx, a)
+	id1, err := repo.Create(a)
 	if err != nil {
 		t.Fatalf(
 			"[%s][Create(a)] unexpected error while creating first student: %v",
@@ -540,7 +523,7 @@ func TestRepository_List_ReturnsCopies(t *testing.T) {
 		)
 	}
 
-	if _, err = repo.Create(ctx, b); err != nil {
+	if _, err = repo.Create(b); err != nil {
 		t.Fatalf(
 			"[%s][Create(b)] unexpected error while creating second student: %v",
 			repoImplTestPrefix,
@@ -548,7 +531,7 @@ func TestRepository_List_ReturnsCopies(t *testing.T) {
 		)
 	}
 
-	list, err := repo.List(ctx)
+	list, err := repo.List()
 	if err != nil {
 		t.Fatalf(
 			"[%s][List] unexpected error while getting list of student from storages: %v",
@@ -563,7 +546,7 @@ func TestRepository_List_ReturnsCopies(t *testing.T) {
 
 	list[0].Name = "Change name to check copy"
 
-	back, err := repo.GetByID(ctx, id1)
+	back, err := repo.GetByID(id1)
 	if err != nil {
 		t.Fatalf(
 			"[%s][GetByID(after list-mutate)] unexpected error while getting student by ID from storage: %v",
@@ -585,9 +568,7 @@ func TestRepository_Smoke_TableDriven(t *testing.T) {
 		t.Fatalf("[%s][Smoke] failed to init validators: %v", repoImplTestPrefix, err)
 	}
 
-	ctx := context.Background()
-
-	repo, err := repositories.NewStudentStorageWithPersister(ctx, nil)
+	repo, err := repositories.NewStudentStorageWithPersister(nil)
 	if err != nil {
 		t.Fatalf(
 			"[%s][Smoke] error while creating repository with nil persister: %v",
@@ -650,7 +631,7 @@ func TestRepository_Smoke_TableDriven(t *testing.T) {
 			func(t *testing.T) {
 				st := tc.build()
 
-				id, err := repo.Create(ctx, st)
+				id, err := repo.Create(st)
 				gotErr := err != nil
 
 				if gotErr != tc.wantErr {
@@ -664,7 +645,7 @@ func TestRepository_Smoke_TableDriven(t *testing.T) {
 				}
 
 				if !tc.wantErr {
-					_, err := repo.GetByID(ctx, id)
+					_, err := repo.GetByID(id)
 					present := err == nil
 
 					if present != tc.wantFound {
@@ -696,13 +677,12 @@ func TestRepository_Persists_On_Mutations(t *testing.T) {
 		t.Fatalf("[%s][Persists_On_Mutations] init cipher: %v", repoImplTestPrefix, err)
 	}
 
-	ctx := context.Background()
 	tmpDir := t.TempDir()
 	path := filepath.Join(tmpDir, "students.json")
 
 	persister := persisters.NewJSONStudentPersister(path, cipher)
 
-	repo, err := repositories.NewStudentStorageWithPersister(ctx, persister)
+	repo, err := repositories.NewStudentStorageWithPersister(persister)
 	if err != nil {
 		t.Fatalf(
 			"[%s][Persists_On_Mutations] init repo with persister: %v",
@@ -721,7 +701,7 @@ func TestRepository_Persists_On_Mutations(t *testing.T) {
 		t.Fatalf("[%s][Persists_On_Mutations] failed to build student: %v", repoImplTestPrefix, err)
 	}
 
-	id, err := repo.Create(ctx, st)
+	id, err := repo.Create(st)
 	if err != nil {
 		t.Fatalf(
 			"[%s][Persists_On_Mutations] unexpected error while creating student in storage: %v",
@@ -730,7 +710,7 @@ func TestRepository_Persists_On_Mutations(t *testing.T) {
 		)
 	}
 
-	loaded, err := persister.Load(ctx)
+	loaded, err := persister.Load()
 	if err != nil {
 		t.Fatalf(
 			"[%s][Persists_On_Mutations] unexpected error while loading students from persister: %v",
@@ -750,7 +730,7 @@ func TestRepository_Persists_On_Mutations(t *testing.T) {
 	upd := *st
 	upd.Age = 21
 
-	if err := repo.Update(ctx, &upd); err != nil {
+	if err := repo.Update(&upd); err != nil {
 		t.Fatalf(
 			"[%s][Persists_On_Mutations] unexpected error while updating student in storage: %v",
 			repoImplTestPrefix,
@@ -758,7 +738,7 @@ func TestRepository_Persists_On_Mutations(t *testing.T) {
 		)
 	}
 
-	loaded, err = persister.Load(ctx)
+	loaded, err = persister.Load()
 	if err != nil {
 		t.Fatalf(
 			"[%s][Persists_On_Mutations] unexpected error while loading students from persister: %v",
@@ -771,7 +751,7 @@ func TestRepository_Persists_On_Mutations(t *testing.T) {
 		t.Fatalf("[%s][Persists_On_Mutations] want Age=21, got=%v", repoImplTestPrefix, loaded)
 	}
 
-	if err := repo.AddGrades(ctx, id, 60); err != nil {
+	if err := repo.AddGrades(id, 60); err != nil {
 		t.Fatalf(
 			"[%s][Persists_On_Mutations] unexpected error while adding grades to student in storage: %v",
 			repoImplTestPrefix,
@@ -779,7 +759,7 @@ func TestRepository_Persists_On_Mutations(t *testing.T) {
 		)
 	}
 
-	loaded, err = persister.Load(ctx)
+	loaded, err = persister.Load()
 	if err != nil {
 		t.Fatalf(
 			"[%s][Persists_On_Mutations] unexpected error while loading students from persister: %v",
@@ -792,7 +772,7 @@ func TestRepository_Persists_On_Mutations(t *testing.T) {
 		t.Fatalf("[%s][Persists_On_Mutations] want 2 grades, got=%v", repoImplTestPrefix, loaded)
 	}
 
-	if err := repo.DeleteByID(ctx, id); err != nil {
+	if err := repo.DeleteByID(id); err != nil {
 		t.Fatalf(
 			"[%s][Persists_On_Mutations] unexpected error while deleting students by id from storage: %v",
 			repoImplTestPrefix,
@@ -800,7 +780,7 @@ func TestRepository_Persists_On_Mutations(t *testing.T) {
 		)
 	}
 
-	loaded, err = persister.Load(ctx)
+	loaded, err = persister.Load()
 	if err != nil {
 		t.Fatalf(
 			"[%s][Persists_On_Mutations] unexpected error while loading students from persister: %v",

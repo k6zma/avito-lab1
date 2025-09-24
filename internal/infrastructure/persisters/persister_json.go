@@ -1,7 +1,6 @@
 package persisters
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -31,7 +30,7 @@ func NewJSONStudentPersister(path string, c ciphers.Cipher) *JSONStudentPersiste
 	}
 }
 
-func (p *JSONStudentPersister) Save(ctx context.Context, students []*models.Student) error {
+func (p *JSONStudentPersister) Save(students []*models.Student) error {
 	if p.cipher == nil {
 		return ErrInvalidCipher
 	}
@@ -69,7 +68,7 @@ func (p *JSONStudentPersister) Save(ctx context.Context, students []*models.Stud
 		return fmt.Errorf("failed to marshal json with snapshot data: %w", err)
 	}
 
-	ciphertext, err := p.cipher.Encrypt(ctx, payload)
+	ciphertext, err := p.cipher.Encrypt(payload)
 	if err != nil {
 		return fmt.Errorf("failed to encrypt snapshot: %w", err)
 	}
@@ -115,7 +114,7 @@ func (p *JSONStudentPersister) Save(ctx context.Context, students []*models.Stud
 	return nil
 }
 
-func (p *JSONStudentPersister) Load(ctx context.Context) ([]*models.Student, error) {
+func (p *JSONStudentPersister) Load() ([]*models.Student, error) {
 	if p.cipher == nil {
 		return nil, ErrInvalidCipher
 	}
@@ -148,7 +147,7 @@ func (p *JSONStudentPersister) Load(ctx context.Context) ([]*models.Student, err
 		return nil, nil
 	}
 
-	plaintext, err := p.cipher.Decrypt(ctx, data)
+	plaintext, err := p.cipher.Decrypt(data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decrypt snapshot: %w", err)
 	}

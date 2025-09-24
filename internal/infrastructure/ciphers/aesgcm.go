@@ -20,6 +20,7 @@ func NewAESGCM(key string) (Cipher, error) {
 	}
 
 	var k [32]byte
+
 	copy(k[:], key)
 
 	block, err := aes.NewCipher(k[:])
@@ -38,7 +39,7 @@ func NewAESGCM(key string) (Cipher, error) {
 	}, nil
 }
 
-func (a *AESGCMCipher) Encrypt(_ context.Context, plaintext []byte) ([]byte, error) {
+func (a *AESGCMCipher) Encrypt(plaintext []byte) ([]byte, error) {
 	nonceSize := a.aead.NonceSize()
 	nonce := make([]byte, nonceSize)
 
@@ -55,7 +56,7 @@ func (a *AESGCMCipher) Encrypt(_ context.Context, plaintext []byte) ([]byte, err
 	return out, nil
 }
 
-func (a *AESGCMCipher) Decrypt(_ context.Context, data []byte) ([]byte, error) {
+func (a *AESGCMCipher) Decrypt(data []byte) ([]byte, error) {
 	nonceSize := a.aead.NonceSize()
 	if len(data) < nonceSize {
 		return nil, ErrCorruptedPayload

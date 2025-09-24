@@ -1,7 +1,6 @@
 package ciphers_test
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -63,8 +62,6 @@ func TestAESGCM_NewAESGCM_KeyLengthValidation(t *testing.T) {
 }
 
 func TestAESGCM_EncryptDecrypt_RoundTrip(t *testing.T) {
-	ctx := context.Background()
-
 	c, err := ciphers.NewAESGCM(testKey)
 	if err != nil {
 		t.Fatalf("[%s][RoundTrip] failed initing cipher: %v", cipherTestPrefix, err)
@@ -79,7 +76,7 @@ func TestAESGCM_EncryptDecrypt_RoundTrip(t *testing.T) {
 
 	for i, p := range payloads {
 		t.Run(fmt.Sprintf("[%s]-roundtrip-case-%d", cipherTestPrefix, i+1), func(t *testing.T) {
-			ct, err := c.Encrypt(ctx, p)
+			ct, err := c.Encrypt(p)
 			if err != nil {
 				t.Fatalf(
 					"[%s][Encrypt] unexpected error while encrypting: %v",
@@ -92,7 +89,7 @@ func TestAESGCM_EncryptDecrypt_RoundTrip(t *testing.T) {
 				t.Fatalf("[%s][Encrypt] got empty cipher text", cipherTestPrefix)
 			}
 
-			pt, err := c.Decrypt(ctx, ct)
+			pt, err := c.Decrypt(ct)
 			if err != nil {
 				t.Fatalf(
 					"[%s][Decrypt] unexpected error while decrypting: %v",
@@ -114,8 +111,6 @@ func TestAESGCM_EncryptDecrypt_RoundTrip(t *testing.T) {
 }
 
 func TestAESGCM_Decrypt_WithWrongKey_Fails(t *testing.T) {
-	ctx := context.Background()
-
 	cipher1, err := ciphers.NewAESGCM(testKey)
 	if err != nil {
 		t.Fatalf("[%s][WrongKey] failed initing first cipher: %v", cipherTestPrefix, err)
@@ -126,7 +121,7 @@ func TestAESGCM_Decrypt_WithWrongKey_Fails(t *testing.T) {
 		t.Fatalf("[%s][WrongKey] failed initing second cipher: %v", cipherTestPrefix, err)
 	}
 
-	ct, err := cipher1.Encrypt(ctx, []byte("top_secret"))
+	ct, err := cipher1.Encrypt([]byte("top_secret"))
 	if err != nil {
 		t.Fatalf(
 			"[%s][WrongKey][Encrypt] unexpected error while encrypting: %v",
@@ -135,7 +130,7 @@ func TestAESGCM_Decrypt_WithWrongKey_Fails(t *testing.T) {
 		)
 	}
 
-	if _, err := cipher2.Decrypt(ctx, ct); err == nil {
+	if _, err := cipher2.Decrypt(ct); err == nil {
 		t.Fatalf(
 			"[%s][WrongKey][Decrypt] expected error while decrypting with wrong key, but got nil",
 			cipherTestPrefix,
@@ -144,14 +139,12 @@ func TestAESGCM_Decrypt_WithWrongKey_Fails(t *testing.T) {
 }
 
 func TestAESGCM_Decrypt_TamperedCiphertext_Fails(t *testing.T) {
-	ctx := context.Background()
-
 	c, err := ciphers.NewAESGCM(testKey)
 	if err != nil {
 		t.Fatalf("[%s][Tamper] failed initing cipher: %v", cipherTestPrefix, err)
 	}
 
-	ct, err := c.Encrypt(ctx, []byte("pau pau pau"))
+	ct, err := c.Encrypt([]byte("pau pau pau"))
 	if err != nil {
 		t.Fatalf(
 			"[%s][Tamper][Encrypt] unexpected error while encrypting: %v",
@@ -164,7 +157,7 @@ func TestAESGCM_Decrypt_TamperedCiphertext_Fails(t *testing.T) {
 		ct[0]++
 	}
 
-	if _, err := c.Decrypt(ctx, ct); err == nil {
+	if _, err := c.Decrypt(ct); err == nil {
 		t.Fatalf(
 			"[%s][Tamper][Decrypt] expected error on tampered ciphertext, got nil",
 			cipherTestPrefix,

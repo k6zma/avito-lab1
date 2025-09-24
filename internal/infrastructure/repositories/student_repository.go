@@ -1,7 +1,6 @@
 package repositories
 
 import (
-	"context"
 	"fmt"
 	"sync"
 
@@ -20,7 +19,6 @@ type StudentStorage struct {
 }
 
 func NewStudentStorageWithPersister(
-	ctx context.Context,
 	p persisters.StudentPersister,
 ) (*StudentStorage, error) {
 	s := &StudentStorage{
@@ -32,7 +30,7 @@ func NewStudentStorageWithPersister(
 		return s, nil
 	}
 
-	sts, err := p.Load(ctx)
+	sts, err := p.Load()
 	if err != nil {
 		return nil, fmt.Errorf("failed to load students snapshot: %w", err)
 	}
@@ -52,7 +50,7 @@ func NewStudentStorageWithPersister(
 	return s, nil
 }
 
-func (s *StudentStorage) Create(ctx context.Context, student *models.Student) (uuid.UUID, error) {
+func (s *StudentStorage) Create(student *models.Student) (uuid.UUID, error) {
 	cp := student.Clone()
 
 	if err := validators.Validate.Struct(cp); err != nil {
@@ -75,7 +73,7 @@ func (s *StudentStorage) Create(ctx context.Context, student *models.Student) (u
 			students = append(students, st.Clone())
 		}
 
-		if err := s.persister.Save(ctx, students); err != nil {
+		if err := s.persister.Save(students); err != nil {
 			delete(s.students, cp.ID)
 
 			return uuid.Nil, fmt.Errorf("persist student data after create failed: %w", err)
@@ -85,7 +83,7 @@ func (s *StudentStorage) Create(ctx context.Context, student *models.Student) (u
 	return cp.ID, nil
 }
 
-func (s *StudentStorage) Update(ctx context.Context, student *models.Student) error {
+func (s *StudentStorage) Update(student *models.Student) error {
 	cp := student.Clone()
 
 	if err := validators.Validate.Struct(cp); err != nil {
@@ -109,7 +107,7 @@ func (s *StudentStorage) Update(ctx context.Context, student *models.Student) er
 			students = append(students, st.Clone())
 		}
 
-		if err := s.persister.Save(ctx, students); err != nil {
+		if err := s.persister.Save(students); err != nil {
 			s.students[cp.ID] = prev
 
 			return fmt.Errorf("persist student data after update failed: %w", err)
@@ -119,7 +117,7 @@ func (s *StudentStorage) Update(ctx context.Context, student *models.Student) er
 	return nil
 }
 
-func (s *StudentStorage) DeleteByID(ctx context.Context, id uuid.UUID) error {
+func (s *StudentStorage) DeleteByID(id uuid.UUID) error {
 	if id == uuid.Nil {
 		return repositories.ErrInvalidStudentID
 	}
@@ -141,7 +139,7 @@ func (s *StudentStorage) DeleteByID(ctx context.Context, id uuid.UUID) error {
 			students = append(students, st.Clone())
 		}
 
-		if err := s.persister.Save(ctx, students); err != nil {
+		if err := s.persister.Save(students); err != nil {
 			s.students[id] = prev
 
 			return fmt.Errorf("persist student data after delete failed: %w", err)
@@ -151,7 +149,7 @@ func (s *StudentStorage) DeleteByID(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-func (s *StudentStorage) GetByID(_ context.Context, id uuid.UUID) (*models.Student, error) {
+func (s *StudentStorage) GetByID(id uuid.UUID) (*models.Student, error) {
 	if id == uuid.Nil {
 		return nil, repositories.ErrInvalidStudentID
 	}
@@ -168,7 +166,6 @@ func (s *StudentStorage) GetByID(_ context.Context, id uuid.UUID) (*models.Stude
 }
 
 func (s *StudentStorage) GetByFullName(
-	_ context.Context,
 	name string,
 	surname string,
 ) (*models.Student, error) {
@@ -192,7 +189,7 @@ func (s *StudentStorage) GetByFullName(
 	return nil, repositories.ErrStudentNotFound
 }
 
-func (s *StudentStorage) List(_ context.Context) ([]*models.Student, error) {
+func (s *StudentStorage) List() ([]*models.Student, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -204,7 +201,7 @@ func (s *StudentStorage) List(_ context.Context) ([]*models.Student, error) {
 	return students, nil
 }
 
-func (s *StudentStorage) AddGrades(ctx context.Context, id uuid.UUID, grades ...int) error {
+func (s *StudentStorage) AddGrades(id uuid.UUID, grades ...int) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -228,7 +225,7 @@ func (s *StudentStorage) AddGrades(ctx context.Context, id uuid.UUID, grades ...
 			students = append(students, st.Clone())
 		}
 
-		if err := s.persister.Save(ctx, students); err != nil {
+		if err := s.persister.Save(students); err != nil {
 			s.students[id] = current
 
 			return fmt.Errorf("persist student data after add-grades failed: %w", err)

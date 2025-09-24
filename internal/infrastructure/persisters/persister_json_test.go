@@ -1,7 +1,6 @@
 package persisters_test
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -32,13 +31,12 @@ func TestPersister_Load_NoFile(t *testing.T) {
 		t.Fatalf("[%s] failed to init cipher: %v", persisterTestPrefix, err)
 	}
 
-	ctx := context.Background()
 	tmpDir := t.TempDir()
 	path := filepath.Join(tmpDir, "students.json")
 
 	persister := persisters.NewJSONStudentPersister(path, cipher)
 
-	got, err := persister.Load(ctx)
+	got, err := persister.Load()
 	if err != nil {
 		t.Fatalf(
 			"[%s][Load_NoFile] unexpected error while loading from non-existing file: %v",
@@ -66,7 +64,6 @@ func TestPersister_SaveAndLoad_RoundTrip(t *testing.T) {
 		t.Fatalf("[%s] failed to init cipher: %v", persisterTestPrefix, err)
 	}
 
-	ctx := context.Background()
 	tmpDir := t.TempDir()
 	path := filepath.Join(tmpDir, "students.json")
 
@@ -100,7 +97,7 @@ func TestPersister_SaveAndLoad_RoundTrip(t *testing.T) {
 		)
 	}
 
-	if err := persister.Save(ctx, []*models.Student{first, second}); err != nil {
+	if err := persister.Save([]*models.Student{first, second}); err != nil {
 		t.Fatalf("[%s][SaveAndLoad] save: %v", persisterTestPrefix, err)
 	}
 
@@ -113,7 +110,7 @@ func TestPersister_SaveAndLoad_RoundTrip(t *testing.T) {
 		t.Fatalf("[%s][SaveAndLoad] something failed, snapshot file is empty", persisterTestPrefix)
 	}
 
-	loaded, err := persister.Load(ctx)
+	loaded, err := persister.Load()
 	if err != nil {
 		t.Fatalf("[%s][SaveAndLoad] failed load student data: %v", persisterTestPrefix, err)
 	}
@@ -178,7 +175,6 @@ func TestPersister_Save_CreatesDirectories(t *testing.T) {
 		t.Fatalf("[%s] failed to init cipher: %v", persisterTestPrefix, err)
 	}
 
-	ctx := context.Background()
 	tmpDir := t.TempDir()
 	path := filepath.Join(tmpDir, "nested", "deep", "students.json")
 
@@ -197,7 +193,7 @@ func TestPersister_Save_CreatesDirectories(t *testing.T) {
 		)
 	}
 
-	if err := persister.Save(ctx, []*models.Student{student}); err != nil {
+	if err := persister.Save([]*models.Student{student}); err != nil {
 		t.Fatalf(
 			"[%s][Save_CreatesDirectories] failed to save student data: %v",
 			persisterTestPrefix,
@@ -225,7 +221,6 @@ func TestPersister_Load_EmptyFile(t *testing.T) {
 		t.Fatalf("[%s] failed to init cipher: %v", persisterTestPrefix, err)
 	}
 
-	ctx := context.Background()
 	tmpDir := t.TempDir()
 	path := filepath.Join(tmpDir, "students.json")
 
@@ -235,7 +230,7 @@ func TestPersister_Load_EmptyFile(t *testing.T) {
 
 	persister := persisters.NewJSONStudentPersister(path, cipher)
 
-	got, err := persister.Load(ctx)
+	got, err := persister.Load()
 	if err != nil {
 		t.Fatalf("[%s][Load_EmptyFile] failed to load students data: %v", persisterTestPrefix, err)
 	}
@@ -259,7 +254,6 @@ func TestPersister_Load_InvalidJSON(t *testing.T) {
 		t.Fatalf("[%s] failed to init cipher: %v", persisterTestPrefix, err)
 	}
 
-	ctx := context.Background()
 	tmpDir := t.TempDir()
 	path := filepath.Join(tmpDir, "students.json")
 
@@ -269,7 +263,7 @@ func TestPersister_Load_InvalidJSON(t *testing.T) {
 
 	persister := persisters.NewJSONStudentPersister(path, cipher)
 
-	if _, err := persister.Load(ctx); err == nil {
+	if _, err := persister.Load(); err == nil {
 		t.Fatalf("[%s][Load_InvalidJSON] expected unmarshal error, got nil", persisterTestPrefix)
 	}
 }
@@ -288,7 +282,6 @@ func TestPersister_Save_OverwriteSnapshot(t *testing.T) {
 		t.Fatalf("[%s] failed to init cipher: %v", persisterTestPrefix, err)
 	}
 
-	ctx := context.Background()
 	tmpDir := t.TempDir()
 	path := filepath.Join(tmpDir, "students.json")
 
@@ -307,7 +300,7 @@ func TestPersister_Save_OverwriteSnapshot(t *testing.T) {
 		)
 	}
 
-	if err := persister.Save(ctx, []*models.Student{first}); err != nil {
+	if err := persister.Save([]*models.Student{first}); err != nil {
 		t.Fatalf(
 			"[%s][Save_OverwriteSnapshot] failed to save first model: %v",
 			persisterTestPrefix,
@@ -328,7 +321,7 @@ func TestPersister_Save_OverwriteSnapshot(t *testing.T) {
 		)
 	}
 
-	if err := persister.Save(ctx, []*models.Student{first, second}); err != nil {
+	if err := persister.Save([]*models.Student{first, second}); err != nil {
 		t.Fatalf(
 			"[%s][Save_OverwriteSnapshot] failed to save second student: %v",
 			persisterTestPrefix,
@@ -336,7 +329,7 @@ func TestPersister_Save_OverwriteSnapshot(t *testing.T) {
 		)
 	}
 
-	loaded, err := persister.Load(ctx)
+	loaded, err := persister.Load()
 	if err != nil {
 		t.Fatalf(
 			"[%s][Save_OverwriteSnapshot] failed to load second student: %v",
@@ -355,22 +348,20 @@ func TestPersister_Save_OverwriteSnapshot(t *testing.T) {
 }
 
 func TestPersister_Save_NilCipher(t *testing.T) {
-	ctx := context.Background()
 	tmp := t.TempDir()
 	p := persisters.NewJSONStudentPersister(filepath.Join(tmp, "s.json"), nil)
 
-	if err := p.Save(ctx, nil); !errors.Is(err, persisters.ErrInvalidCipher) {
+	if err := p.Save(nil); !errors.Is(err, persisters.ErrInvalidCipher) {
 		t.Fatalf("want ErrInvalidCipher, got %v", err)
 	}
 }
 
 func TestPersister_Load_NilCipher(t *testing.T) {
-	ctx := context.Background()
 	tmp := t.TempDir()
 	_ = os.WriteFile(filepath.Join(tmp, "s.json"), []byte("non-empty"), 0o644)
 
 	p := persisters.NewJSONStudentPersister(filepath.Join(tmp, "s.json"), nil)
-	if _, err := p.Load(ctx); !errors.Is(err, persisters.ErrInvalidCipher) {
+	if _, err := p.Load(); !errors.Is(err, persisters.ErrInvalidCipher) {
 		t.Fatalf("want ErrInvalidCipher, got %v", err)
 	}
 }
