@@ -1,5 +1,13 @@
-with-expecter: true
-filename: "{{.InterfaceName | snakecase}}.go"
-mockname: "{{.InterfaceName | firstUpper}}"
-outpkg: mocks
+template: testify
+structname: "{{ .Mock }}{{ .InterfaceName }}"
+pkgname: mocks
+dir: "mocks"
+filename: "{{ .SrcPackageName }}_mocks.go"
+
 packages:
+  github.com/k6zma/avito-lab1/internal/domain/repositories:
+    config:
+      all: true
+  github.com/k6zma/avito-lab1/internal/domain/models:
+    config:
+      all: true

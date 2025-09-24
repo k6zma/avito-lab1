@@ -1,0 +1,171 @@
+package models
+
+import (
+	"fmt"
+
+	"github.com/google/uuid"
+
+	"github.com/k6zma/avito-lab1/pkg/validators"
+)
+
+type Student struct {
+	ID      uuid.UUID `json:"id"      validate:"required"`
+	Name    string    `json:"name"    validate:"required,capitalized"`
+	Surname string    `json:"surname" validate:"required,capitalized"`
+	Age     int       `json:"age"     validate:"gte=0,lte=150"`
+	Grades  []int     `json:"grades"  validate:"omitempty,dive,gte=0,lte=100"`
+}
+
+func (s *Student) SetID(id uuid.UUID) error {
+	if err := validators.Validate.Var(id, "required"); err != nil {
+		return fmt.Errorf("error while validating student id (UUID) in student id setter: %w", err)
+	}
+
+	s.ID = id
+
+	return nil
+}
+
+func (s *Student) SetName(name string) error {
+	if err := validators.Validate.Var(name, "required,capitalized"); err != nil {
+		return fmt.Errorf("error while validating student name in student name setter: %w", err)
+	}
+
+	s.Name = name
+
+	return nil
+}
+
+func (s *Student) SetSurname(surname string) error {
+	if err := validators.Validate.Var(surname, "required,capitalized"); err != nil {
+		return fmt.Errorf(
+			"error while validating student surname in student surname setter: %w",
+			err,
+		)
+	}
+
+	s.Surname = surname
+
+	return nil
+}
+
+func (s *Student) SetAge(age int) error {
+	if err := validators.Validate.Var(age, "required,gte=0,lte=150"); err != nil {
+		return fmt.Errorf("error while validating student age in student age setter: %w", err)
+	}
+
+	s.Age = age
+
+	return nil
+}
+
+func (s *Student) SetGrades(grades []int) error {
+	if err := validators.Validate.Var(grades, "required,dive,gte=0,lte=100"); err != nil {
+		return fmt.Errorf("error while validating grades in student grades setter: %w", err)
+	}
+
+	s.Grades = grades
+
+	return nil
+}
+
+func (s *Student) AddGrades(grades ...int) error {
+	if err := validators.Validate.Var(grades, "required,dive,gte=0,lte=100"); err != nil {
+		return fmt.Errorf(
+			"error while validating appended grades in student append grades method: %w",
+			err,
+		)
+	}
+
+	s.Grades = append(s.Grades, grades...)
+
+	return nil
+}
+
+func (s *Student) Clone() *Student {
+	if s == nil {
+		return nil
+	}
+
+	cp := *s
+	if len(s.Grades) > 0 {
+		cp.Grades = append([]int(nil), s.Grades...)
+	}
+
+	return &cp
+}
+
+type StudentBuilder interface {
+	SetID(id uuid.UUID) StudentBuilder
+	SetName(name string) StudentBuilder
+	SetSurname(surname string) StudentBuilder
+	SetAge(age int) StudentBuilder
+	SetGrades(grades []int) StudentBuilder
+	Build() (*Student, error)
+}
+
+type studentBuilder struct {
+	id      uuid.UUID
+	name    string
+	surname string
+	age     int
+	grades  []int
+}
+
+func NewStudentBuilder() StudentBuilder {
+	return &studentBuilder{}
+}
+
+func (s *studentBuilder) SetID(id uuid.UUID) StudentBuilder {
+	s.id = id
+
+	return s
+}
+
+func (s *studentBuilder) SetName(name string) StudentBuilder {
+	s.name = name
+
+	return s
+}
+
+func (s *studentBuilder) SetSurname(surname string) StudentBuilder {
+	s.surname = surname
+
+	return s
+}
+
+func (s *studentBuilder) SetAge(age int) StudentBuilder {
+	s.age = age
+
+	return s
+}
+
+func (s *studentBuilder) SetGrades(grades []int) StudentBuilder {
+	s.grades = grades
+
+	return s
+}
+
+func (s *studentBuilder) Build() (*Student, error) {
+	id := s.id
+	if id == uuid.Nil {
+		id = uuid.New()
+	}
+
+	student := &Student{
+		ID:      id,
+		Name:    s.name,
+		Surname: s.surname,
+		Age:     s.age,
+		Grades:  s.grades,
+	}
+
+	if err := validators.Validate.Struct(student); err != nil {
+		return nil, fmt.Errorf(
+			"error while validating student domain model in build method: %w",
+			err,
+		)
+	}
+
+	return student, nil
+}
